@@ -134,6 +134,7 @@ def RGBToXYZ(rgb):
     Notes
     -----
     XYZはCIE-XYZ表色系をRGBはsRGB色空間を採用
+    RGB値はガンマ補正前と仮定
     """
     xyz = np.empty(3)
     xyz[0] = 0.4124*rgb[0] + 0.3576*rgb[1] + 0.1805*rgb[2]
@@ -166,6 +167,3 @@ def RadianToDegree(rad):
         弧度法の角度
     """
     return rad / np.pi * 180
-
-
-print("utility.py loading.")

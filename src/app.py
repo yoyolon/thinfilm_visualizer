@@ -1,6 +1,10 @@
 import tkinter as tk
-from tkinter import ttk
 import tkinter.font
+from tkinter import ttk
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from matplotlib import cm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from spectrum import *
 from film import *
@@ -67,7 +71,7 @@ class App(tk.Frame):
         # ウィンドウの設定       
         self.window = window
         self.window.title("Thinfilm Tester")
-        self.window.geometry("640x480")
+        self.window.geometry("1280x720")
         # フォント
         font_label = tk.font.Font(self.window, family="Arial", weight="bold", size=15)
         # スペクトルデータ
@@ -182,7 +186,7 @@ class App(tk.Frame):
         frm_texture_prev.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         lbl_texture = ttk.Label(master=frm_texture_lbl, text="Thin-film Texture", font=font_label)
         lbl_texture.pack(padx=PADX, pady=PADY)
-        self.canvas_texture = tkinter.Canvas(master=frm_texture_prev, bg="white", height=50)
+        self.canvas_texture = tkinter.Canvas(master=frm_texture_prev, bg="white", height=100)
         self.canvas_texture.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         canvas_width = self.canvas_texture.winfo_width()
         canvas_height = self.canvas_texture.winfo_height()
@@ -214,10 +218,12 @@ class App(tk.Frame):
         self.canvas_2Dgraph.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         # 3D描画
         self.fig3D = plt.Figure()
+        self.fig3D.subplots_adjust(left=0, right=1, bottom=0.03, top=1.05) # プロット領域調整
         self.ax3D = self.fig3D.add_subplot(1, 1, 1, projection="3d")
         self.ax3D.set_xlabel("wavelength(nm)")
         self.ax3D.set_ylabel("angle")
         self.ax3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.ax3D.view_init(elev=20, azim=-45) # グラフ角度調整
         self.canvas_3Dgraph = FigureCanvasTkAgg(self.fig3D, frm_graph_3D)
         self.canvas_3Dgraph.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
@@ -238,6 +244,7 @@ class App(tk.Frame):
     
     def GraphPlot3D(self):
         """3Dグラフを描画"""
+        self.ax3D.view_init(elev=20, azim=-45) # グラフ角度リセット
         spd = Spectrum()
         x = spd.wl
         y = np.linspace(0, 89, 90)
@@ -247,14 +254,14 @@ class App(tk.Frame):
             temp = self.irid.Evaluate(np.cos(np.pi/180 * i))
             for j in range(NSAMPLESPECTRUM):
                 Z[i][j] = temp.c[j]
-#         self.ax3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
+        self.ax3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
         self.ax3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//10, color="red")
         self.ax3D.set_zlim(0.0, 1.0)
         self.ax3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax3D.set_xlabel("wavelength(nm)")
-        self.ax3D.set_ylabel("angle")        
-        self.ax3D.legend()
+        self.ax3D.set_ylabel("angle")    
+        #self.ax3D.legend()
         self.canvas_3Dgraph.draw()
         
         

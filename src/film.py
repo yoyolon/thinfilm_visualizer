@@ -2,34 +2,137 @@ import os
 from spectrum import *
 from utility import *
 
-"""フレネルの式"""
 def fresnel_rp(cos0, cos1, n0, n1):
+    """
+    界面でのp偏光のフレネル反射係数
+
+    Parameters
+    ----------
+    cos0 : float
+        界面への入射角
+    cos1 : float
+        界面での屈折角
+    n0 : float
+        入射方向の媒質の屈折率
+    n1 : float
+        屈折方向の媒質の屈折率
+    """
     return (n1*cos0 - n0*cos1) / (n1*cos0 + n0*cos1)
 
+
 def fresnel_rs(cos0, cos1, n0, n1):
+    """
+    界面でのs偏光のフレネル反射係数
+
+    Parameters
+    ----------
+    cos0 : float
+        界面への入射角
+    cos1 : float
+        界面での屈折角
+    n0 : float
+        入射方向の媒質の屈折率
+    n1 : float
+        屈折方向の媒質の屈折率
+    """
     return (n0*cos0 - n1*cos1) / (n0*cos0 + n1*cos1)
 
+
 def fresnel_tp(cos0, cos1, n0, n1):
+    """
+    界面でのp偏光のフレネル透過係数
+
+    Parameters
+    ----------
+    cos0 : float
+        界面への入射角
+    cos1 : float
+        界面での屈折角
+    n0 : float
+        入射方向の媒質の屈折率
+    n1 : float
+        屈折方向の媒質の屈折率
+    """
     return (2*n0*cos0) / (n1*cos0 + n1*cos1)
 
+
 def fresnel_ts(cos0, cos1, n0, n1):
+    """
+    界面でのs偏光のフレネル透過係数
+
+    Parameters
+    ----------
+    cos0 : float
+        界面への入射角
+    cos1 : float
+        界面での屈折角
+    n0 : float
+        入射方向の媒質の屈折率
+    n1 : float
+        屈折方向の媒質の屈折率
+    """
     return (2*n0*cos0) / (n0*cos0 + n1*cos1)
 
 
-
-"""干渉を考慮した反射率"""
 def composit_r(r0, r1, phi):
+    """
+    界面での干渉を考慮したフレネル反射係数
+
+    Parameters
+    ----------
+    r0 : complex
+        薄膜層上面のフレネル反射係数
+    r1 : complex
+        薄膜層下面のフレネル反射係数
+    phi : float
+        一回の内部反射で生じる位相差
+    """
     return (r0 + r1 * np.exp(2*1.j*phi)) / (1 + r0 * r1 * np.exp(2*1.j*phi))
 
+
 def composit_t(r0, r1, t0, t1, phi):
+    """
+    界面での干渉を考慮したフレネル透過係数
+
+    Parameters
+    ----------
+    r0 : complex
+        薄膜層上面のフレネル反射係数
+    r1 : complex
+        薄膜層下面のフレネル反射係数
+    t0 : complex
+        薄膜層上面のフレネル透過係数
+    t1 : complex
+        薄膜層下面のフレネル透過係数
+    phi : float
+        一回の内部反射で生じる位相差
+    """
     return (t0 * t1 * np.epx(1.j*phi)) / (1 + r0 * r1 * np.exp(2*1.j*phi))
 
+
 def iridr(r01, r10, r12, t01, t10, phi):
+    """
+    界面での干渉を考慮したフレネル透過係数
+
+    Parameters
+    ----------
+    r01 : complex
+        入射側の媒質->薄膜層のフレネル反射係数
+    r10 : complex
+        薄膜層->入射媒質のフレネル反射係数
+    r12 : complex
+        出射側の媒質->薄膜層のフレネル反射係数
+    t01 : complex
+        入射側の媒質->薄膜層のフレネル透過係数
+    t10 : complex
+        薄膜層->入射側の媒質のフレネル透過係数
+    phi : float
+        一回の内部反射で生じる位相差
+    """
     return r01 + (t01 * r12 * t10 * np.exp(1.j*phi)) / (1 - r10 * r12 * np.exp(1.j*phi))
 
 
 
-"""薄膜クラス"""
 class ThinFilm:
     """
     薄膜クラス
@@ -123,24 +226,24 @@ class Irid:
 
         Notes
         -----
-        現時点では単層薄膜(入射角媒質・薄膜・ベース媒質の三層モデル)を過程
+        現時点では単層薄膜(入射角媒質・薄膜・ベース媒質の三層モデル)を仮定
+        計算はndarrayを行い最後にSpectrumに変換
         """
         nLayers = len(self.films)
         sinTheta = np.sqrt(max(0, 1 - cosTheta**2))
-        # 入射角
         index = 0
-        cosine = np.zeros([nLayers, NSAMPLESPECTRUM])
+        cosFilm = np.zeros([nLayers, NSAMPLESPECTRUM]) # 各層への入射角の余弦
+        etaI = self.films[0].eta
         # 薄膜への入射角計算
-        nI = self.films[0].eta
         for film in self.films:
             sample = np.zeros([NSAMPLESPECTRUM])
             for i in range(NSAMPLESPECTRUM):
-                sinTemp = nI[i] * sinTheta / complex(film.eta[i], film.kappa[i])
+                sinTemp = etaI[i] * sinTheta / complex(film.eta[i], film.kappa[i])
                 if (sinTemp.real**2 + sinTemp.imag**2 > 1): # 全反射
                     return Spectrum()
                 cosTemp = np.sqrt(max(0, 1. - sinTemp**2))
                 sample[i] = cosTemp
-            cosine[index] = sample
+            cosFilm[index] = sample
             index = index + 1
         # 波長生成
         step = (ENDWAVELENGTH - STARTWAVELENGTH) / NSAMPLESPECTRUM
@@ -151,9 +254,9 @@ class Irid:
         rp = np.zeros(NSAMPLESPECTRUM, dtype=complex)
         rs = np.zeros(NSAMPLESPECTRUM, dtype=complex)
         for j in range(NSAMPLESPECTRUM):
-            cos0 = cosine[0][j]
-            cos1 = cosine[1][j]
-            cos2 = cosine[2][j]
+            cos0 = cosFilm[0][j]
+            cos1 = cosFilm[1][j]
+            cos2 = cosFilm[2][j]
             n0 = complex(self.films[0].eta[j], self.films[0].kappa[j])
             n1 = complex(self.films[1].eta[j], self.films[1].kappa[j])
             n2 = complex(self.films[2].eta[j], self.films[2].kappa[j])
@@ -168,11 +271,11 @@ class Irid:
             ts01 = fresnel_ts(cos0, cos1, n0, n1)
             tp10 = fresnel_tp(cos1, cos0, n1, n0)
             ts10 = fresnel_ts(cos1, cos0, n1, n0)
-            phi = 4 * np.pi * self.films[1].d / wl[j] * n1 * cos1
-#             rp[j] = iridr(rp01, rp10, rp12, tp01, tp10, phi)
-#             rs[j] = iridr(rs01, rs10, rs12, ts01, ts10, phi)
-            rp[j] = composit_r(rp01, rp12, phi/2)
-            rs[j] = composit_r(rs01, rs12, phi/2)
+            phi = 4 * np.pi * self.films[1].d / wl[j] * n1 * cos1 # 位相差
+            rp[j] = iridr(rp01, rp10, rp12, tp01, tp10, phi)
+            rs[j] = iridr(rs01, rs10, rs12, ts01, ts10, phi)
+            #rp[j] = composit_r(rp01, rp12, phi/2)
+            #rs[j] = composit_r(rs01, rs12, phi/2)
         v = (np.abs(rp)**2 + np.abs(rs)**2) / 2
         spd = Spectrum(wl, v)
         return spd
