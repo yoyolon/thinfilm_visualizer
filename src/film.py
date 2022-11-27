@@ -246,10 +246,10 @@ class Irid:
             cosFilm[index] = sample
             index = index + 1
         # 波長生成
-        step = (ENDWAVELENGTH - STARTWAVELENGTH) / NSAMPLESPECTRUM
+        step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM
         wl = np.zeros(NSAMPLESPECTRUM)
         for i in range(NSAMPLESPECTRUM):
-            wl[i] = STARTWAVELENGTH + step/2 + i*step
+            wl[i] = START_WAVELENGTH + step/2 + i*step
         # 反射率計算
         rp = np.zeros(NSAMPLESPECTRUM, dtype=complex)
         rs = np.zeros(NSAMPLESPECTRUM, dtype=complex)
@@ -305,8 +305,7 @@ class Irid:
             temp = temp.ToRGB()
             for j in range (height):
                 img[j][i] = temp
-        img = np.clip(img, 0, 1) * 255
-        img = img.astype(np.uint8)
+        img = np.clip(img, 0.0, 1.0)
         return img
 
 
@@ -326,6 +325,4 @@ class Irid:
             spd = self.Evaluate(np.cos(np.pi/180 * i))
             for j in range (NSAMPLESPECTRUM):
                 data[i][j] = spd.c[j]
-        np.savetxt(path ,data,delimiter=',', fmt='%.3e')
-
-print("film.py loading.")
+        np.savetxt(path ,data,delimiter=',', fmt='%.4f')

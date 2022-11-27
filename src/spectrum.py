@@ -40,10 +40,10 @@ class Spectrum:
         self.__wl = np.zeros(NSAMPLESPECTRUM)
         self.__wl_mod = np.zeros(NSAMPLESPECTRUM)        
         self.__name = name
-        step = (ENDWAVELENGTH - STARTWAVELENGTH) / NSAMPLESPECTRUM
+        step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM
         for i in range(NSAMPLESPECTRUM):
-            self.__wl[i] = STARTWAVELENGTH+ step * i
-            self.__wl_mod[i] = STARTWAVELENGTH+ step * i + step * 0.5
+            self.__wl[i] = START_WAVELENGTH+ step * i
+            self.__wl_mod[i] = START_WAVELENGTH+ step * i + step * 0.5
         # 波長と値のペアが与えられた場合
         if (wl is not None and v is not None):
             self.FromSample(wl, v)         
@@ -128,8 +128,8 @@ class Spectrum:
         wl, v = samples[0], samples[1]
         # サンプルの補間
         for i in range(NSAMPLESPECTRUM):
-            lambda0 = Lerp(i/NSAMPLESPECTRUM, STARTWAVELENGTH, ENDWAVELENGTH)
-            lambda1 = Lerp((i+1)/NSAMPLESPECTRUM, STARTWAVELENGTH, ENDWAVELENGTH)
+            lambda0 = Lerp(i/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
+            lambda1 = Lerp((i+1)/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
             self.__c[i] = np.interp((lambda0+lambda1)*0.5, wl, v)
 
             
@@ -145,7 +145,7 @@ class Spectrum:
         xyz[0] = np.sum(X.c * self.c)
         xyz[1] = np.sum(Y.c * self.c)
         xyz[2] = np.sum(Z.c * self.c)
-        scale = (ENDWAVELENGTH -STARTWAVELENGTH) / (NSAMPLESPECTRUM * Y_luminance)
+        scale = (END_WAVELENGTH -START_WAVELENGTH) / (NSAMPLESPECTRUM * Y_luminance)
         xyz *= scale
         return xyz
     
@@ -189,7 +189,7 @@ class Spectrum:
         ax.set_xlabel("wavelength")
         ax.set_ylabel("value")
         # プロット
-        step = (ENDWAVELENGTH - STARTWAVELENGTH) / NSAMPLESPECTRUM   
+        step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM   
         ax.bar(left, height, width=step*0.8, color=cmaps, align='edge')
         # 反映
         plt.show()             
@@ -206,7 +206,7 @@ class Spectrum:
         ax.yaxis.set_major_locator(ticker.MaxNLocator(4))     
         # データ
         y = self.c
-        x = self.wl + (ENDWAVELENGTH - STARTWAVELENGTH) / NSAMPLESPECTRUM * 0.5
+        x = self.wl + (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM * 0.5
         # 範囲
         ax.set_ylim(0, y.max()*1.1)
         # プロット        
@@ -225,6 +225,4 @@ X = Spectrum(wl, xyz[0], name='X')
 Y = Spectrum(wl, xyz[1], name='Y')
 Z = Spectrum(wl, xyz[2], name='Z')
 # 1nmサンプリングの輝度成分
-Y_luminance = np.sum(Y.c) * (ENDWAVELENGTH-STARTWAVELENGTH) / NSAMPLESPECTRUM
-
-print("spectrum.py loading.")
+Y_luminance = np.sum(Y.c) * (END_WAVELENGTH-START_WAVELENGTH) / NSAMPLESPECTRUM
