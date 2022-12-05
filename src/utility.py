@@ -10,7 +10,7 @@ STEP_WAVELENGTH = RANGE_WAVELENGTH / NSAMPLESPECTRUM
 
 
 
-def Lerp(t, v1, v2):
+def lerp(t, v1, v2):
     """
     線形補間
 
@@ -27,7 +27,7 @@ def Lerp(t, v1, v2):
 
 
 
-def LoadSPD(filename):
+def load_spd(filename):
     """
     CVSファイルからSPDデータを読み込む
 
@@ -58,7 +58,7 @@ def LoadSPD(filename):
 
 
 
-def LoadCMF(filename):
+def load_cmf(filename):
     """
     CVSファイルから等色関数データを読み込む
 
@@ -92,7 +92,7 @@ def LoadCMF(filename):
 
 
 
-def XYZToRGB(xyz):
+def xyz_to_rgb(xyz):
     """
     XYZ三刺激値からRGB値へ変換
 
@@ -119,7 +119,7 @@ def XYZToRGB(xyz):
 
 
 
-def RGBToXYZ(rgb):
+def rgb_to_xyz(rgb):
     """
     RGB値からXYZ三刺激値へ変換
 
@@ -146,7 +146,7 @@ def RGBToXYZ(rgb):
 
 
 
-def DegreeToRadian(deg):
+def to_radian(deg):
     """
     度数法から弧度法に変換
 
@@ -159,7 +159,7 @@ def DegreeToRadian(deg):
 
 
 
-def RadianToDegree(rad):
+def to_degree(rad):
     """
     弧度法から度数法に変換
 

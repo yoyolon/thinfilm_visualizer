@@ -41,17 +41,17 @@ class App(tk.Frame):
         薄膜干渉反射率テクスチャ
     canvas_texture : Canvas
         テクスチャ描画用キャンバス
-    fig2D : Figure
+    fig_2D : Figure
         2Dグラフ描画用のmatplotlibのFigureオブジェクト
-    ax2D : AxesSubplot
+    ax_2D : AxesSubplot
         2Dグラフ描画用のmatplotlibのAxesオブジェクト
-    canvas_2Dgraph : FigureCanvasTkAgg
+    canvas_graph_2D : FigureCanvasTkAgg
         2Dグラフ描画用のmatplotlibキャンバス
-    fig3D : Figure
+    fig_3D : Figure
         3Dグラフ描画用のmatplotlibのFigureオブジェクト
-    ax3D : AxesSubplot
+    ax_3D : AxesSubplot
         3Dグラフ描画用のmatplotlibのAxesオブジェクト
-    canvas_3Dgraph : FigureCanvasTkAgg
+    canvas_graph_3D : FigureCanvasTkAgg
         3Dグラフ描画用のmatplotlibキャンバス
     """
 
@@ -127,7 +127,7 @@ class App(tk.Frame):
         # 膜厚
         lbl_thickness_name = ttk.Label(master=frm_thickness, text="D  ")
         self.lbl_thickness_value = ttk.Label(master=frm_thickness, text="")
-        scl_thickness = ttk.Scale(master=frm_thickness, command=self.SetLabelThickness, variable=self.var_thickness, 
+        scl_thickness = ttk.Scale(master=frm_thickness, command=self.set_label_thickness, variable=self.var_thickness, 
                                   from_=100., to=900., length=200)
         lbl_thickness_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_thickness.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
@@ -135,7 +135,7 @@ class App(tk.Frame):
         # 薄膜屈折率
         lbl_eta_film_name = ttk.Label(master=frm_eta_film, text="n1")
         self.lbl_eta_film_value = ttk.Label(master=frm_eta_film, text="")
-        scl_eta_film = ttk.Scale(master=frm_eta_film, command=self.SetLabelEtaFilm, variable=self.var_eta_film, 
+        scl_eta_film = ttk.Scale(master=frm_eta_film, command=self.set_label_eta_film, variable=self.var_eta_film, 
                                  from_=0.0, to=2.0, length=200)
         lbl_eta_film_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_eta_film.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
@@ -143,7 +143,7 @@ class App(tk.Frame):
         # ベース屈折率
         lbl_eta_base_name = ttk.Label(master=frm_eta_base, text="n2")
         self.lbl_eta_base_value = ttk.Label(master=frm_eta_base, text="")
-        scl_eta_base = ttk.Scale(master=frm_eta_base, command=self.SetLabelEtaBase, variable=self.var_eta_base, 
+        scl_eta_base = ttk.Scale(master=frm_eta_base, command=self.set_label_eta_base, variable=self.var_eta_base, 
                                  from_=0.0, to=2.0, length=200)
         lbl_eta_base_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_eta_base.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
@@ -151,16 +151,16 @@ class App(tk.Frame):
         # ベース消失係数
         lbl_kappa_base_name = ttk.Label(master=frm_kappa_base, text="k2")
         self.lbl_kappa_base_value = ttk.Label(master=frm_kappa_base, text="")
-        scl_kappa_base = ttk.Scale(master=frm_kappa_base, command=self.SetLabelKappaBase, variable=self.var_kappa_base, 
+        scl_kappa_base = ttk.Scale(master=frm_kappa_base, command=self.set_label_kappa_base, variable=self.var_kappa_base, 
                                    from_=0.0, to=2.0, length=200)
         lbl_kappa_base_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_kappa_base.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
         self.lbl_kappa_base_value.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         # スケールラベルの初期化
-        self.SetLabelThickness(self.var_thickness.get())
-        self.SetLabelEtaFilm(self.var_eta_film.get())
-        self.SetLabelEtaBase(self.var_eta_base.get())
-        self.SetLabelKappaBase(self.var_kappa_base.get())
+        self.set_label_thickness(self.var_thickness.get())
+        self.set_label_eta_film(self.var_eta_film.get())
+        self.set_label_eta_base(self.var_eta_base.get())
+        self.set_label_kappa_base(self.var_kappa_base.get())
 
         # ラベル(評価角度)
         # パラメータ調整フレーム
@@ -181,11 +181,11 @@ class App(tk.Frame):
         frm_lft_btm.pack(side=tk.TOP, padx=PADX, pady=PADY)
         frm_lft_btm.rowconfigure(0, minsize=20)
         frm_lft_btm.columnconfigure([0, 1, 2], minsize=60)
-        btn_load = ttk.Button(master=frm_lft_btm, text="Csv", command=self.CreateCSV, width=6, padding=[2,2,2,2])
+        btn_load = ttk.Button(master=frm_lft_btm, text="Csv", command=self.create_csv, width=6, padding=[2,2,2,2])
         btn_load.grid(row=0, column=0, padx=PADX, pady=PADY, sticky="ew")
-        btn_update = ttk.Button(master=frm_lft_btm, text="Calc", command=self.DrawTexture, width=6, padding=[2,2,2,2])
+        btn_update = ttk.Button(master=frm_lft_btm, text="Calc", command=self.draw_texture, width=6, padding=[2,2,2,2])
         btn_update.grid(row=0, column=1, padx=PADX, pady=PADY, sticky="ew")
-        btn_plot = ttk.Button(master=frm_lft_btm, text="2DPlot", command = self.GraphPlot2D, width=6, padding=[2,2,2,2])
+        btn_plot = ttk.Button(master=frm_lft_btm, text="2DPlot", command = self.graph_plot_2D, width=6, padding=[2,2,2,2])
         btn_plot.grid(row=0, column=2, padx=PADX, pady=PADY, sticky="ew")
 
         # テクスチャ描画(右上)
@@ -221,71 +221,70 @@ class App(tk.Frame):
         lbl_graph = ttk.Label(master=frm_graph_lbl, text="Spectral Refrectance", font=font_label, style="Temp.TLabel")
         lbl_graph.pack()
         # 2D描画
-        #plt.style.use('dark_background')
-        self.fig2D = plt.Figure()
-        self.ax2D = self.fig2D.add_subplot(1, 1, 1)
-        self.ax2D.set_xlabel("wavelength(nm)")
-        self.ax2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
-        self.canvas_2Dgraph = FigureCanvasTkAgg(self.fig2D, frm_graph_2D)
-        self.canvas_2Dgraph.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.fig_2D = plt.Figure()
+        self.ax_2D = self.fig_2D.add_subplot(1, 1, 1)
+        self.ax_2D.set_xlabel("wavelength(nm)")
+        self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.canvas_graph_2D = FigureCanvasTkAgg(self.fig_2D, frm_graph_2D)
+        self.canvas_graph_2D.get_tk_widget().pack(fill=tk.BOTH, expand=True)
         # 3D描画
-        self.fig3D = plt.Figure()
-        self.fig3D.subplots_adjust(left=0, right=1, bottom=0.03, top=1.05) # プロット領域調整
-        self.ax3D = self.fig3D.add_subplot(1, 1, 1, projection="3d")
-        self.ax3D.set_xlabel("wavelength(nm)")
-        self.ax3D.set_ylabel("angle")
-        self.ax3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
-        self.ax3D.view_init(elev=20, azim=-45) # グラフ角度調整
-        self.canvas_3Dgraph = FigureCanvasTkAgg(self.fig3D, frm_graph_3D)
-        self.canvas_3Dgraph.get_tk_widget().pack(fill=tk.BOTH, expand=True)
+        self.fig_3D = plt.Figure()
+        self.fig_3D.subplots_adjust(left=0, right=1, bottom=0.03, top=1.05) # プロット領域調整
+        self.ax_3D = self.fig_3D.add_subplot(1, 1, 1, projection="3d")
+        self.ax_3D.set_xlabel("wavelength(nm)")
+        self.ax_3D.set_ylabel("angle")
+        self.ax_3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.ax_3D.view_init(elev=20, azim=-45) # グラフ角度調整
+        self.canvas_graph_3D = FigureCanvasTkAgg(self.fig_3D, frm_graph_3D)
+        self.canvas_graph_3D.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
         
-    def GraphPlot2D(self):
+    def graph_plot_2D(self):
         """2Dグラフを描画"""
-        self.ax2D.cla() #前の描画データの削除
-        cosTerm = np.cos(DegreeToRadian(self.var_radian.get()))
-        self.spd = self.irid.Evaluate(cosTerm)
+        self.ax_2D.cla() #前の描画データの削除
+        cosTerm = np.cos(to_radian(self.var_radian.get()))
+        self.spd = self.irid.evaluate(cosTerm)
         inv_gamma = 1 / 2.2
-        linecolor = self.spd.ToRGB()
+        linecolor = self.spd.to_rgb()
         linecolor = np.clip(linecolor, 0.0, 1.0) ** inv_gamma
         c_max = linecolor.max()
         if c_max < 0.7 and c_max > 0:
             linecolor *= 0.7/c_max
         self.spd.name = str(int(self.var_radian.get())) + "°"
-        self.ax2D.plot(self.spd.wl, self.spd.c, label=self.spd.name, color=np.clip(linecolor, 0.0, 1.0))
-        self.ax2D.set_xlabel("wavelength(nm)")
-        self.ax2D.set_ylim(0, 1.0)
-        self.ax2D.yaxis.set_major_locator(ticker.MaxNLocator(4))        
-        self.ax2D.legend()
-        self.canvas_2Dgraph.draw()
+        self.ax_2D.plot(self.spd.wl, self.spd.c, label=self.spd.name, color=np.clip(linecolor, 0.0, 1.0))
+        self.ax_2D.set_xlabel("wavelength(nm)")
+        self.ax_2D.set_ylim(0, 1.0)
+        self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))        
+        self.ax_2D.legend()
+        self.canvas_graph_2D.draw()
         
     
-    def GraphPlot3D(self):
+    def graph_plot_3D(self):
         """3Dグラフを描画"""
-        self.ax3D.view_init(elev=20, azim=-45) # グラフ角度リセット
+        self.ax_3D.view_init(elev=20, azim=-45) # グラフ角度リセット
         spd = Spectrum()
         x = spd.wl
         y = np.linspace(0, 89, 90) # 0-90
         X, Y = np.meshgrid(x, y)
         Z = np.zeros_like(X)
         for i in range(90):
-            temp = self.irid.Evaluate(np.cos(np.pi/180 * i))
+            temp = self.irid.evaluate(np.cos(np.pi/180 * i))
             for j in range(NSAMPLESPECTRUM):
                 Z[i][j] = temp.c[j]
-        self.ax3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
-        self.ax3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//3, color="red",linewidth=1)
-        self.ax3D.set_zlim(0.0, 1.0)
-        self.ax3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
-        self.ax3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
-        self.ax3D.set_xlabel("wavelength(nm)")
-        self.ax3D.set_ylabel("angle")    
-        self.canvas_3Dgraph.draw()
+        self.ax_3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
+        self.ax_3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//3, color="red",linewidth=1)
+        self.ax_3D.set_zlim(0.0, 1.0)
+        self.ax_3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.ax_3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.ax_3D.set_xlabel("wavelength(nm)")
+        self.ax_3D.set_ylabel("angle")    
+        self.canvas_graph_3D.draw()
         
         
-    def DrawTexture(self):
+    def draw_texture(self):
         """テクスチャを描画"""
-        self.ax2D.cla() #前の描画データの削除
-        self.ax3D.cla() #前の描画データの削除
+        self.ax_2D.cla() #前の描画データの削除
+        self.ax_3D.cla() #前の描画データの削除
         d = round(self.var_thickness.get(),1)
         n1 = round(self.var_eta_film.get(),2)
         n2 = round(self.var_eta_base.get(),2)
@@ -298,12 +297,12 @@ class App(tk.Frame):
         self.update()
         canvas_width = self.canvas_texture.winfo_width()
         canvas_height = self.canvas_texture.winfo_height()
-        self.CreateTexture(canvas_width, canvas_height)
+        self.create_texture(canvas_width, canvas_height)
         self.canvas_texture.create_image(canvas_width/2,canvas_height/2,image=self.irid_texture)
-        self.GraphPlot3D() # 3Dの描画        
+        self.graph_plot_3D() # 3Dの描画        
     
     
-    def CreateTexture(self, width, height):
+    def create_texture(self, width, height):
         """
         テクスチャを生成
 
@@ -314,8 +313,8 @@ class App(tk.Frame):
         height : int
             テクスチャ高さ
         """
-        inv_gamma =1 / 2.2
-        array = self.irid.CreateTexture(width, height)
+        inv_gamma = 1 / 2.2
+        array = self.irid.create_texture(width, height)
         array = 255 * (array ** inv_gamma) # ガンマ補正
         array = array.astype(np.uint8)
 
@@ -323,7 +322,7 @@ class App(tk.Frame):
         self.irid_texture = ImageTk.PhotoImage(image=img)
 
 
-    def CreateCSV(self, path='out.csv'):
+    def create_csv(self, path='out.csv'):
         """
         分光反射率をCSV出力する
 
@@ -332,10 +331,10 @@ class App(tk.Frame):
         path : string
             ファイル名
         """
-        self.irid.CreateCSV(path)
+        self.irid.create_csv(path)
         
         
-    def SetLabelThickness(self, value):
+    def set_label_thickness(self, value):
         """
         膜厚ラベルの更新
 
@@ -348,7 +347,7 @@ class App(tk.Frame):
         self.lbl_thickness_value['text'] = str(round(float(value), 1))
         
 
-    def SetLabelEtaFilm(self, value):
+    def set_label_eta_film(self, value):
         """
         薄膜屈折率ラベルの更新
 
@@ -362,7 +361,7 @@ class App(tk.Frame):
         self.lbl_eta_film_value['text'] = s.rjust(6)
 
         
-    def SetLabelEtaBase(self, value):
+    def set_label_eta_base(self, value):
         """
         ベース材質屈折率ラベルの更新
 
@@ -376,7 +375,7 @@ class App(tk.Frame):
         self.lbl_eta_base_value['text'] = s.rjust(6)
 
 
-    def SetLabelKappaBase(self, value):
+    def set_label_kappa_base(self, value):
         """
         ベース材質消衰係数ラベルの更新
 

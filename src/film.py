@@ -110,7 +110,7 @@ def composit_t(r0, r1, t0, t1, phi):
     return (t0 * t1 * np.epx(1.j*phi)) / (1 + r0 * r1 * np.exp(2*1.j*phi))
 
 
-def iridr(r01, r10, r12, t01, t10, phi):
+def irid_r(r01, r10, r12, t01, t10, phi):
     """
     界面での干渉を考慮したフレネル透過係数
 
@@ -210,14 +210,14 @@ class Irid:
         self.__films = f
         
     
-    def Evaluate(self, cosTheta):
+    def evaluate(self, cos_theta):
         """
         薄膜干渉の分光反射率を評価
 
         Parameters
         ----------
-        cosTheta : float
-            入射角(ラジアン)
+        cos_theta : float
+            入射角余弦
 
         Returns
         -------
@@ -229,21 +229,21 @@ class Irid:
         現時点では単層薄膜(入射角媒質・薄膜・ベース媒質の三層モデル)を仮定
         計算はndarrayを行い最後にSpectrumに変換
         """
-        nLayers = len(self.films)
-        sinTheta = np.sqrt(max(0, 1 - cosTheta**2))
+        n_layer = len(self.films)
+        sin_theta = np.sqrt(max(0, 1 - cos_theta**2))
         index = 0
-        cosFilm = np.zeros([nLayers, NSAMPLESPECTRUM]) # 各層への入射角の余弦
+        cos_film = np.zeros([n_layer, NSAMPLESPECTRUM]) # 各層への入射角の余弦
         etaI = self.films[0].eta
         # 薄膜への入射角計算
         for film in self.films:
             sample = np.zeros([NSAMPLESPECTRUM])
             for i in range(NSAMPLESPECTRUM):
-                sinTemp = etaI[i] * sinTheta / complex(film.eta[i], film.kappa[i])
-                if (sinTemp.real**2 + sinTemp.imag**2 > 1): # 全反射
+                sin_temp = etaI[i] * sin_theta / complex(film.eta[i], film.kappa[i])
+                if (sin_temp.real**2 + sin_temp.imag**2 > 1): # 全反射
                     return Spectrum()
-                cosTemp = np.sqrt(max(0, 1. - sinTemp**2))
-                sample[i] = cosTemp
-            cosFilm[index] = sample
+                cos_temp = np.sqrt(max(0, 1. - sin_temp**2))
+                sample[i] = cos_temp
+            cos_film[index] = sample
             index = index + 1
         # 波長生成
         step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM
@@ -254,9 +254,9 @@ class Irid:
         rp = np.zeros(NSAMPLESPECTRUM, dtype=complex)
         rs = np.zeros(NSAMPLESPECTRUM, dtype=complex)
         for j in range(NSAMPLESPECTRUM):
-            cos0 = cosFilm[0][j]
-            cos1 = cosFilm[1][j]
-            cos2 = cosFilm[2][j]
+            cos0 = cos_film[0][j]
+            cos1 = cos_film[1][j]
+            cos2 = cos_film[2][j]
             n0 = complex(self.films[0].eta[j], self.films[0].kappa[j])
             n1 = complex(self.films[1].eta[j], self.films[1].kappa[j])
             n2 = complex(self.films[2].eta[j], self.films[2].kappa[j])
@@ -272,8 +272,8 @@ class Irid:
             tp10 = fresnel_tp(cos1, cos0, n1, n0)
             ts10 = fresnel_ts(cos1, cos0, n1, n0)
             phi = 4 * np.pi * self.films[1].d / wl[j] * n1 * cos1 # 位相差
-            rp[j] = iridr(rp01, rp10, rp12, tp01, tp10, phi)
-            rs[j] = iridr(rs01, rs10, rs12, ts01, ts10, phi)
+            rp[j] = irid_r(rp01, rp10, rp12, tp01, tp10, phi)
+            rs[j] = irid_r(rs01, rs10, rs12, ts01, ts10, phi)
             #rp[j] = composit_r(rp01, rp12, phi/2)
             #rs[j] = composit_r(rs01, rs12, phi/2)
         v = (np.abs(rp)**2 + np.abs(rs)**2) / 2
@@ -281,7 +281,7 @@ class Irid:
         return spd
         
         
-    def CreateTexture(self, width=270, height=90):
+    def create_texture(self, width=270, height=90):
         """
         入射角が0-90度の反射率テクスチャを作成
 
@@ -301,15 +301,15 @@ class Irid:
         img = np.zeros([height, width, 3])
         invstep = width / 90
         for i in range (width):
-            temp = self.Evaluate(np.cos(np.pi/180 * i/invstep))
-            temp = temp.ToRGB()
+            temp = self.evaluate(np.cos(np.pi/180 * i/invstep))
+            temp = temp.to_rgb()
             for j in range (height):
                 img[j][i] = temp
         img = np.clip(img, 0.0, 1.0)
         return img
 
 
-    def CreateCSV(self, path):
+    def create_csv(self, path):
         """
         入射角が0-90度の分光反射率をCSV出力
 
@@ -322,7 +322,7 @@ class Irid:
         outpath = os.path.join('out', path)
         data = np.zeros([90, NSAMPLESPECTRUM])
         for i in range (90):
-            spd = self.Evaluate(np.cos(np.pi/180 * i))
+            spd = self.evaluate(np.cos(np.pi/180 * i))
             for j in range (NSAMPLESPECTRUM):
                 data[i][j] = spd.c[j]
         np.savetxt(path ,data,delimiter=',', fmt='%.4f')

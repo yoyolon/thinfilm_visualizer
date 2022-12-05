@@ -47,7 +47,7 @@ class Spectrum:
             self.__wl_mod[i] = START_WAVELENGTH+ step * i + step * 0.5
         # 波長と値のペアが与えられた場合
         if (wl is not None and v is not None):
-            self.FromSample(wl, v)         
+            self.from_sample(wl, v)         
         # 定数がえられた場合
         elif (constv is not None):
             self.__c = np.full(NSAMPLESPECTRUM, constv)
@@ -111,7 +111,7 @@ class Spectrum:
     
     
 
-    def FromSample(self, wl, v):
+    def from_sample(self, wl, v):
         """
         波長と値のサンプルからスペクトルを生成
 
@@ -129,12 +129,12 @@ class Spectrum:
         wl, v = samples[0], samples[1]
         # サンプルの補間
         for i in range(NSAMPLESPECTRUM):
-            lambda0 = Lerp(i/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
-            lambda1 = Lerp((i+1)/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
+            lambda0 = lerp(i/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
+            lambda1 = lerp((i+1)/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
             self.__c[i] = np.interp((lambda0+lambda1)*0.5, wl, v)
 
             
-    def ToXYZ(self):
+    def to_xyz(self):
         """
         SPDをXYZ三刺激値に変換
 
@@ -151,7 +151,7 @@ class Spectrum:
         return xyz
     
     
-    def ToRGB(self):
+    def to_rgb(self):
         """
         SPDをRGB値に変換
 
@@ -159,8 +159,8 @@ class Spectrum:
         -------
         rgb : 変換後のRGB値
         """
-        xyz = self.ToXYZ()
-        rgb = XYZToRGB(xyz)
+        xyz = self.to_xyz()
+        rgb = xyz_to_rgb(xyz)
         return rgb
     
 
@@ -221,7 +221,7 @@ class Spectrum:
 
 # XYZ等色関数の生成
 path_xyz = os.path.join('data', 'cmf', 'ciexyz31.csv')
-wl, xyz = LoadCMF(path_xyz)
+wl, xyz = load_cmf(path_xyz)
 X = Spectrum(wl, xyz[0], name='X')
 Y = Spectrum(wl, xyz[1], name='Y')
 Z = Spectrum(wl, xyz[2], name='Z')
