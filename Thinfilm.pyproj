@@ -31,7 +31,7 @@
     <Compile Include="src\film.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="src\gray_background.py">
+    <Compile Include="src\config.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="src\main.py">
