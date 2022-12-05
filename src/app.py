@@ -75,8 +75,8 @@ class App(tk.Frame):
         # スタイル
         style = ttk.Style()
         style.configure("Temp.TLabel", foreground="white", background="black", font=font_label) # ラベル
-        style.configure("Back.TFrame", background="#1D1D1D") # ラベル
-        style.configure("Temp.TFrame", background="#333333") # ラベル
+        style.configure("Back.TFrame", background="#1D1D1D") # フレーム(奥)
+        style.configure("Temp.TFrame", background="#333333") # フレーム(手前)
         # スペクトルデータ
         self.spd = Spectrum(constv=0.5)
         self.var_radian = tk.DoubleVar()
