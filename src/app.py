@@ -166,11 +166,11 @@ class App(tk.Frame):
         # パラメータ調整フレーム
         frm_eval_angle = ttk.Frame(master=frm_lft, style="Temp.TFrame")
         frm_eval_angle.pack(fill=tk.BOTH, expand=True, pady=PADY)
-        frm_radian_lbl = tk.Frame(master=frm_eval_angle, width=200, bg="orange")
+        frm_radian_lbl = ttk.Frame(master=frm_eval_angle, width=200, style="Temp.TFrame")
         frm_radian_lbl.pack(fill=tk.BOTH, side=tk.TOP, padx=PADX, pady=PADY)
-        frm_radian = tk.Frame(master=frm_eval_angle, width=200, bg="orange")
+        frm_radian = ttk.Frame(master=frm_eval_angle, width=200, style="Temp.TFrame")
         frm_radian.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
-        frm_radian_var = tk.Frame(master=frm_radian, bg = "yellow")
+        frm_radian_var = ttk.Frame(master=frm_radian, style="Temp.TFrame")
         frm_radian_var.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         lbl_radian = ttk.Label(master=frm_radian_lbl, text="Evaluation Angle", font=font_label, style="Temp.TLabel")
         lbl_radian.pack(padx=PADX, pady=PADY)
@@ -221,6 +221,7 @@ class App(tk.Frame):
         lbl_graph = ttk.Label(master=frm_graph_lbl, text="Spectral Refrectance", font=font_label, style="Temp.TLabel")
         lbl_graph.pack()
         # 2D描画
+        #plt.style.use('dark_background')
         self.fig2D = plt.Figure()
         self.ax2D = self.fig2D.add_subplot(1, 1, 1)
         self.ax2D.set_xlabel("wavelength(nm)")
@@ -241,9 +242,15 @@ class App(tk.Frame):
         
     def GraphPlot2D(self):
         """2Dグラフを描画"""
+        self.ax2D.cla() #前の描画データの削除
         cosTerm = np.cos(DegreeToRadian(self.var_radian.get()))
         self.spd = self.irid.Evaluate(cosTerm)
+        inv_gamma = 1 / 2.2
         linecolor = self.spd.ToRGB()
+        linecolor = np.clip(linecolor, 0.0, 1.0) ** inv_gamma
+        c_max = linecolor.max()
+        if c_max < 0.7 and c_max > 0:
+            linecolor *= 0.7/c_max
         self.spd.name = str(int(self.var_radian.get())) + "°"
         self.ax2D.plot(self.spd.wl, self.spd.c, label=self.spd.name, color=np.clip(linecolor, 0.0, 1.0))
         self.ax2D.set_xlabel("wavelength(nm)")
@@ -258,7 +265,7 @@ class App(tk.Frame):
         self.ax3D.view_init(elev=20, azim=-45) # グラフ角度リセット
         spd = Spectrum()
         x = spd.wl
-        y = np.linspace(0, 89, 90)
+        y = np.linspace(0, 89, 90) # 0-90
         X, Y = np.meshgrid(x, y)
         Z = np.zeros_like(X)
         for i in range(90):
@@ -266,13 +273,12 @@ class App(tk.Frame):
             for j in range(NSAMPLESPECTRUM):
                 Z[i][j] = temp.c[j]
         self.ax3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
-        self.ax3D.plot_wireframe(X, Y, Z, rstride=10, cstride=3, color="red")
+        self.ax3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//3, color="red",linewidth=1)
         self.ax3D.set_zlim(0.0, 1.0)
         self.ax3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax3D.set_xlabel("wavelength(nm)")
         self.ax3D.set_ylabel("angle")    
-        #self.ax3D.legend()
         self.canvas_3Dgraph.draw()
         
         
@@ -280,13 +286,13 @@ class App(tk.Frame):
         """テクスチャを描画"""
         self.ax2D.cla() #前の描画データの削除
         self.ax3D.cla() #前の描画データの削除
-        #eta1 = round(self.var_eta_film.get(),2)
-        #eta1 = round(self.var_eta_film.get(),2)
-        #eta2 = round(self.var_eta_base.get(),2)
-        #kappa2 = round(self.var_kappa_base.get(),2)
-        film1 = ThinFilm(0., Spectrum(constv=1.0), Spectrum(constv=0.0))
-        film2 = ThinFilm(self.var_thickness.get(), Spectrum(constv=self.var_eta_film.get()), Spectrum(constv=0.0))
-        film3 = ThinFilm(0., Spectrum(constv=self.var_eta_base.get()), Spectrum(constv=self.var_kappa_base.get()))
+        d = round(self.var_thickness.get(),1)
+        n1 = round(self.var_eta_film.get(),2)
+        n2 = round(self.var_eta_base.get(),2)
+        k2 = round(self.var_kappa_base.get(),2)
+        film1 = ThinFilm(0.0, Spectrum(constv=1.0), Spectrum(constv=0.0))
+        film2 = ThinFilm(d, Spectrum(constv=n1), Spectrum(constv=0.0))
+        film3 = ThinFilm(0.0, Spectrum(constv=n2), Spectrum(constv=k2))
         films = [film1, film2, film3]
         self.irid.films = films
         self.update()

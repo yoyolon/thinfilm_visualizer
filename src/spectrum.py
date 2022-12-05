@@ -4,6 +4,7 @@ import matplotlib.ticker as ticker
 from PIL import Image, ImageTk
 import os
 from utility import *
+from gray_background import *
 
 
 class Spectrum:
