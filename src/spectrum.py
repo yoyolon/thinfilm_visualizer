@@ -100,7 +100,7 @@ class Spectrum:
             
     def __truediv__(self, other):
         if type(other) == Spectrum:
-            if (not other.IsZeroDiv()):
+            if (not other.is_zero_div()):
                 raise ZeroDivisionError()
             return Spectrum(self.wl_mod, self.c / other.c)
         else:
@@ -164,59 +164,14 @@ class Spectrum:
         return rgb
     
 
-    def IsBlack(self):
+    def is_black(self):
         """ゼロ判定"""
         return np.all(self.c == 0)
     
 
-    def IsZeroDiv(self):
+    def is_zero_div(self):
         """ゼロ除算判定"""
         return np.count_nonzero(self.c)
-    
-
-    def PlotBar(self):
-        """スペクトルをプロット(棒グラフ)"""
-        # データ
-        height = self.__c
-        left = self.__wl
-        # プロット領域
-        fig, ax = plt.subplots(figsize=(6, 4))
-        # 色
-        cm = plt.get_cmap("nipy_spectral")
-        cmaps = []
-        for i in range(NSAMPLESPECTRUM):
-            cmaps.append(cm(0.1+ i / NSAMPLESPECTRUM * 0.8))
-        # ラベル
-        ax.set_xlabel("wavelength")
-        ax.set_ylabel("value")
-        # プロット
-        step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM   
-        ax.bar(left, height, width=step*0.8, color=cmaps, align='edge')
-        # 反映
-        plt.show()             
-        
-        
-    def PlotGraph(self):
-        """複数のスペクトルをプロット(折れ線グラフ)"""
-        # プロット領域
-        fig, ax = plt.subplots(figsize=(6, 4))  
-        # ラベル
-        ax.set_xlabel("wavelength")
-        ax.set_ylabel("value")        
-        # 目盛り
-        ax.yaxis.set_major_locator(ticker.MaxNLocator(4))     
-        # データ
-        y = self.c
-        x = self.wl + (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM * 0.5
-        # 範囲
-        ax.set_ylim(0, y.max()*1.1)
-        # プロット        
-        ax.plot(x, y, label=self.name)
-        # 凡例の表示
-        ax.legend()
-        # 反映
-        plt.show()
-
 
 
 # XYZ等色関数の生成

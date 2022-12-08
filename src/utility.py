@@ -9,7 +9,6 @@ RANGE_WAVELENGTH = END_WAVELENGTH - START_WAVELENGTH
 STEP_WAVELENGTH = RANGE_WAVELENGTH / NSAMPLESPECTRUM
 
 
-
 def lerp(t, v1, v2):
     """
     線形補間
@@ -24,7 +23,6 @@ def lerp(t, v1, v2):
         補間する値
     """
     return (1-t) * v1 + t * v2
-
 
 
 def load_spd(filename):
@@ -55,7 +53,6 @@ def load_spd(filename):
             wl = np.append(wl, float(row[0]))
             v = np.append(v, float(row[1]))
     return wl, v
-
 
 
 def load_cmf(filename):
@@ -91,7 +88,6 @@ def load_cmf(filename):
     return wl, xyz
 
 
-
 def xyz_to_rgb(xyz):
     """
     XYZ三刺激値からRGB値へ変換
@@ -116,7 +112,6 @@ def xyz_to_rgb(xyz):
     rgb[1] = -0.9689*xyz[0] +  1.8758*xyz[1] +  0.0415*xyz[2]
     rgb[2] =  0.0557*xyz[0] + -0.2040*xyz[1] +  1.0570*xyz[2]
     return rgb
-
 
 
 def rgb_to_xyz(rgb):
@@ -145,7 +140,6 @@ def rgb_to_xyz(rgb):
     return rgb
 
 
-
 def to_radian(deg):
     """
     度数法から弧度法に変換
@@ -156,7 +150,6 @@ def to_radian(deg):
         度数法の角度
     """
     return deg / 180.0 * np.pi
-
 
 
 def to_degree(rad):
