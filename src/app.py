@@ -198,6 +198,7 @@ class App(tk.Frame):
         note_graph.add(frm_graph_2D, text="2D")
         # 2D描画
         self.fig_2D = plt.Figure()
+        self.fig_2D.subplots_adjust(bottom=0.15, top=0.9) # プロット領域調整
         self.ax_2D = self.fig_2D.add_subplot(1, 1, 1)
         self.ax_2D.set_xlabel("wavelength(nm)")
         self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
