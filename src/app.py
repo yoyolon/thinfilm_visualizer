@@ -1,16 +1,15 @@
-import tkinter as tk
-import tkinter.font
-from tkinter import ttk
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from matplotlib import cm
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from spectrum import *
+import numpy as np
+import tkinter as tk
+from tkinter import ttk
 from film import *
+from spectrum import *
 
 
-"""定数"""
+# 定数
 PADX = 5
 PADY = 5
 
@@ -71,8 +70,6 @@ class App(tk.Frame):
         self.window.title("Thinfilm Tester")
         self.window.geometry("960x540")
         self.window.state("zoomed")
-        # フォント
-        font_label = tk.font.Font(self.window, family="Arial", size=12)
         # スペクトルデータ
         self.spd = Spectrum(constv=0.5)
         self.var_radian = tk.DoubleVar()
@@ -94,19 +91,17 @@ class App(tk.Frame):
         self.irid_texture = None # 画像
         # メインフレーム
         frm_main = ttk.Frame(master=self.window)
-        frm_main.pack(fill=tk.BOTH, expand=True)
+        frm_main.pack(fill=tk.BOTH, expand=True, padx=PADX*4, pady=PADY*4)
         # 左フレーム
         frm_lft = ttk.Frame(master=frm_main, width=200)
-        frm_lft.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX, pady=PADY)
+        frm_lft.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX*2)
         # 右フレーム
-        frm_rgt = ttk.Frame(master=frm_main, width=600)
-        frm_rgt.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX, pady=PADY)
+        frm_rgt = ttk.Frame(master=frm_main, width=600, )
+        frm_rgt.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX*2)
         # パラメータ調整フレーム
-        frm_param_ajust = ttk.Frame(master=frm_lft)
-        frm_param_ajust.pack(fill=tk.BOTH, expand=True)
+        frm_param_ajust = ttk.LabelFrame(master=frm_lft, text="Parameter")
+        frm_param_ajust.pack(fill=tk.BOTH, expand=True, pady=PADY*4)
         # スライドバー
-        frm_lft_lbl_top = ttk.Frame(master=frm_param_ajust, width=200)
-        frm_lft_lbl_top.pack(fill=tk.BOTH, side=tk.TOP, padx=PADX, pady=PADY)
         frm_lft_var_top = ttk.Frame(master=frm_param_ajust, width=200)
         frm_lft_var_top.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         frm_thickness = ttk.Frame(master=frm_lft_var_top, width=200)
@@ -117,11 +112,8 @@ class App(tk.Frame):
         frm_eta_base.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         frm_kappa_base = ttk.Frame(master=frm_lft_var_top, width=200)
         frm_kappa_base.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)        
-        # ラベル
-        lbl_param = ttk.Label(master=frm_lft_lbl_top, text="Parameter", font=font_label)
-        lbl_param.pack()
         # 膜厚
-        lbl_thickness_name = ttk.Label(master=frm_thickness, text="D  ")
+        lbl_thickness_name = ttk.Label(master=frm_thickness, text="D")
         self.lbl_thickness_value = ttk.Label(master=frm_thickness, text="")
         scl_thickness = ttk.Scale(master=frm_thickness, command=self.set_label_thickness, variable=self.var_thickness, 
                                   from_=100., to=900., length=200)
@@ -158,22 +150,19 @@ class App(tk.Frame):
         self.set_label_eta_base(self.var_eta_base.get())
         self.set_label_kappa_base(self.var_kappa_base.get())
 
-        # ラベル(評価角度)
         # パラメータ調整フレーム
-        frm_eval_angle = ttk.Frame(master=frm_lft)
+        frm_eval_angle = ttk.LabelFrame(master=frm_lft, text="Incident Angle")
         frm_eval_angle.pack(fill=tk.BOTH, expand=True, pady=PADY)
-        frm_radian_lbl = ttk.Frame(master=frm_eval_angle, width=200)
-        frm_radian_lbl.pack(fill=tk.BOTH, side=tk.TOP, padx=PADX, pady=PADY)
         frm_radian = ttk.Frame(master=frm_eval_angle, width=200)
         frm_radian.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         frm_radian_var = ttk.Frame(master=frm_radian)
         frm_radian_var.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
-        lbl_radian = ttk.Label(master=frm_radian_lbl, text="Evaluation Angle", font=font_label)
-        lbl_radian.pack(padx=PADX, pady=PADY)
         scl_radian = ttk.Scale(master=frm_radian_var, length=200, variable=self.var_radian, from_=0.0, to=90.0)
         scl_radian.pack(fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
-        # ボタン
-        frm_lft_btm = ttk.Frame(master=frm_eval_angle, width=200)
+        # ボタンフレーム
+        frm_button = ttk.Frame(master=frm_lft)
+        frm_button.pack(fill=tk.BOTH, expand=True, pady=PADY)
+        frm_lft_btm = ttk.Frame(master=frm_button, width=200)
         frm_lft_btm.pack(side=tk.TOP, padx=PADX, pady=PADY)
         frm_lft_btm.rowconfigure(0, minsize=20)
         frm_lft_btm.columnconfigure([0, 1, 2], minsize=60)
@@ -185,24 +174,18 @@ class App(tk.Frame):
         btn_plot.grid(row=0, column=2, padx=PADX, pady=PADY, sticky="ew")
 
         # テクスチャ描画(右上)
-        frm_rgt_top = ttk.Frame(master=frm_rgt, width=400)
-        frm_rgt_top.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-        frm_texture_lbl = ttk.Frame(master=frm_rgt_top, width=400)
-        frm_texture_lbl.pack(fill=tk.BOTH, side=tk.TOP, padx=PADX, pady=PADY)
+        frm_rgt_top = ttk.LabelFrame(master=frm_rgt, width=400, text="Texture")
+        frm_rgt_top.pack(fill=tk.BOTH, side=tk.TOP, expand=True, pady=PADY*4)
         frm_texture_prev = ttk.Frame(master=frm_rgt_top, width=400)
         frm_texture_prev.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
-        lbl_texture = ttk.Label(master=frm_texture_lbl, text="Thin-film Texture", font=font_label)
-        lbl_texture.pack(padx=PADX, pady=PADY)
-        self.canvas_texture = tkinter.Canvas(master=frm_texture_prev, bg="white", height=100)
+        self.canvas_texture = tk.Canvas(master=frm_texture_prev, bg="white", height=100)
         self.canvas_texture.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         canvas_width = self.canvas_texture.winfo_width()
         canvas_height = self.canvas_texture.winfo_height()
         self.canvas_texture.create_image(canvas_width/2,canvas_height/2,image=self.irid_texture) # 画像の描画
         # グラフ描画(右下)
-        frm_graph = ttk.Frame(master=frm_rgt)
+        frm_graph = ttk.LabelFrame(master=frm_rgt, text="Spectral Reflectance")
         frm_graph.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-        frm_graph_lbl = ttk.Frame(master=frm_graph)
-        frm_graph_lbl.pack(fill=tk.BOTH, side=tk.TOP, padx=PADX, pady=PADY)
         frm_graph_outer = ttk.Frame(master=frm_graph)
         frm_graph_outer.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
         note_graph = ttk.Notebook(master=frm_graph_outer)
@@ -211,11 +194,8 @@ class App(tk.Frame):
         frm_graph_2D.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
         frm_graph_3D = ttk.Frame(master=note_graph)
         frm_graph_3D.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
-        note_graph.add(frm_graph_3D, text="3D")        
+        note_graph.add(frm_graph_3D, text="3D")
         note_graph.add(frm_graph_2D, text="2D")
-        # ラベル
-        lbl_graph = ttk.Label(master=frm_graph_lbl, text="Spectral Refrectance", font=font_label)
-        lbl_graph.pack()
         # 2D描画
         self.fig_2D = plt.Figure()
         self.ax_2D = self.fig_2D.add_subplot(1, 1, 1)
@@ -250,7 +230,7 @@ class App(tk.Frame):
         self.ax_2D.plot(self.spd.wl, self.spd.c, label=self.spd.name, color=np.clip(linecolor, 0.0, 1.0))
         self.ax_2D.set_xlabel("wavelength(nm)")
         self.ax_2D.set_ylim(0, 1.0)
-        self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))        
+        self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax_2D.legend()
         self.canvas_graph_2D.draw()
         
@@ -260,7 +240,7 @@ class App(tk.Frame):
         self.ax_3D.view_init(elev=20, azim=-45) # グラフ角度リセット
         spd = Spectrum()
         x = spd.wl
-        y = np.linspace(0, 89, 90) # 0-90
+        y = np.linspace(0, 89, 90) # 0-90度の入射角
         X, Y = np.meshgrid(x, y)
         Z = np.zeros_like(X)
         for i in range(90):
@@ -310,23 +290,18 @@ class App(tk.Frame):
             テクスチャ高さ
         """
         inv_gamma = 1 / 2.2
-        array = self.irid.create_texture(width, height)
-        array = 255 * (array ** inv_gamma) # ガンマ補正
-        array = array.astype(np.uint8)
+        img_array = self.irid.create_texture(width, height)
+        img_array = 255 * (img_array ** inv_gamma) # ガンマ補正
+        img_array = img_array.astype(np.uint8)
 
-        img = Image.fromarray(np.uint8(array))
+        img = Image.fromarray(np.uint8(img_array))
         self.irid_texture = ImageTk.PhotoImage(image=img)
 
 
-    def create_csv(self, path='out.csv'):
-        """
-        分光反射率をCSV出力する
-
-        Parameters
-        ----------
-        path : string
-            ファイル名
-        """
+    def create_csv(self):
+        """分光反射率をCSV出力する"""
+        path = tk.filedialog.asksaveasfilename(filetypes=[("CSV", "csv")], defaultextension="csv",
+                                               initialdir="out", initialfile="out.csv")
         self.irid.create_csv(path)
         
         
