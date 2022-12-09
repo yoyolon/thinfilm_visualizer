@@ -1,6 +1,6 @@
-from app import *
-import tkinter as tk
 import sv_ttk
+import tkinter as tk
+from app import *
 
 
 if __name__=="__main__":

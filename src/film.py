@@ -319,7 +319,6 @@ class Irid:
             出力ファイル名
         """
 
-        outpath = os.path.join('out', path)
         data = np.zeros([90, NSAMPLESPECTRUM])
         for i in range (90):
             spd = self.evaluate(np.cos(np.pi/180 * i))

@@ -1,8 +1,8 @@
-import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-from PIL import Image, ImageTk
+import numpy as np
 import os
+from PIL import Image, ImageTk
 from utility import *
 from config import *
 

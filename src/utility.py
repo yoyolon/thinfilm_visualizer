@@ -1,7 +1,7 @@
-import numpy as np
 import csv
+import numpy as np
 
-"""定数"""
+# 定数
 START_WAVELENGTH = 400
 END_WAVELENGTH = 700
 NSAMPLESPECTRUM = 15
