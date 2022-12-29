@@ -74,62 +74,38 @@ def fresnel_ts(cos0, cos1, n0, n1):
     return (2*n0*cos0) / (n0*cos0 + n1*cos1)
 
 
-def composit_r(r0, r1, phi):
-    """
-    界面での干渉を考慮したフレネル反射係数
-
-    Parameters
-    ----------
-    r0 : complex
-        薄膜層上面のフレネル反射係数
-    r1 : complex
-        薄膜層下面のフレネル反射係数
-    phi : float
-        一回の内部反射で生じる位相差
-    """
-    return (r0 + r1 * np.exp(2*1.j*phi)) / (1 + r0 * r1 * np.exp(2*1.j*phi))
-
-
-def composit_t(r0, r1, t0, t1, phi):
-    """
-    界面での干渉を考慮したフレネル透過係数
-
-    Parameters
-    ----------
-    r0 : complex
-        薄膜層上面のフレネル反射係数
-    r1 : complex
-        薄膜層下面のフレネル反射係数
-    t0 : complex
-        薄膜層上面のフレネル透過係数
-    t1 : complex
-        薄膜層下面のフレネル透過係数
-    phi : float
-        一回の内部反射で生じる位相差
-    """
-    return (t0 * t1 * np.epx(1.j*phi)) / (1 + r0 * r1 * np.exp(2*1.j*phi))
-
-
 def irid_r(r01, r10, r12, t01, t10, phi):
     """
-    界面での干渉を考慮したフレネル透過係数
+    干渉を考慮した反射係数
 
     Parameters
     ----------
     r01 : complex
-        入射側の媒質->薄膜層のフレネル反射係数
+        入射媒質から薄膜へ進む光の反射係数
     r10 : complex
-        薄膜層->入射媒質のフレネル反射係数
+        薄膜から入射媒質へ進む光の反射係数
     r12 : complex
-        出射側の媒質->薄膜層のフレネル反射係数
+        出射媒質から薄膜へ進む光の反射係数
     t01 : complex
-        入射側の媒質->薄膜層のフレネル透過係数
+        入射媒質から薄膜へ進む光の透過係数
     t10 : complex
-        薄膜層->入射側の媒質のフレネル透過係数
+        薄膜から入射媒質へ進む光の透過係数
     phi : float
-        一回の内部反射で生じる位相差
+        一回の反射で生じる位相差
+
+    Returns
+    -------
+    r : complex
+        薄膜干渉による反射率
+
+    Notes
+    -----
+    等比数列の和を利用
+    Reference: [木下 2010] p.73
     """
-    return r01 + (t01 * r12 * t10 * np.exp(1.j*phi)) / (1 - r10 * r12 * np.exp(1.j*phi))
+    k = 1 - r10 * r12 * np.exp(1.j*phi)
+    r = r01 + (t01 * r12 * t10 * np.exp(1.j*phi)) / k
+    return r
 
 
 
@@ -160,7 +136,7 @@ class ThinFilm:
         kappa : Spectrum
             消衰係数
         """
-        self.__d = d        
+        self.__d = d
         self.__eta = eta
         self.__kappa = kappa
     
@@ -210,13 +186,13 @@ class Irid:
         self.__films = f
         
     
-    def evaluate(self, cos_theta):
+    def evaluate(self, cos_in):
         """
-        薄膜干渉の分光反射率を評価
+        薄膜干渉の分光反射率を計算
 
         Parameters
         ----------
-        cos_theta : float
+        cos_in : float
             入射角余弦
 
         Returns
@@ -226,24 +202,23 @@ class Irid:
 
         Notes
         -----
-        現時点では単層薄膜(入射角媒質・薄膜・ベース媒質の三層モデル)を仮定
-        計算はndarrayを行い最後にSpectrumに変換
+        単層薄膜を仮定
+        自作クラスのndarrayやcomplexが使えないため直接計算
         """
-        n_layer = len(self.films)
-        sin_theta = np.sqrt(max(0, 1 - cos_theta**2))
+        sin_in = np.sqrt(max(0, 1 - cos_in**2))
         index = 0
-        cos_film = np.zeros([n_layer, NSAMPLESPECTRUM]) # 各層への入射角の余弦
+        cos_theta_array = np.zeros([len(self.films), NSAMPLESPECTRUM]) # 各層への入射角の余弦
         etaI = self.films[0].eta
-        # 薄膜への入射角計算
+        # 各層への入射角余弦を計算
         for film in self.films:
-            sample = np.zeros([NSAMPLESPECTRUM])
+            cos_theta = np.zeros([NSAMPLESPECTRUM])
             for i in range(NSAMPLESPECTRUM):
-                sin_temp = etaI[i] * sin_theta / complex(film.eta[i], film.kappa[i])
-                if (sin_temp.real**2 + sin_temp.imag**2 > 1): # 全反射
+                # スネルの法則から屈折角余弦を計算
+                sin_theta = etaI[i] * sin_in / complex(film.eta[i], film.kappa[i])
+                if (sin_theta.real**2 + sin_theta.imag**2 > 1): # 全反射
                     return Spectrum()
-                cos_temp = np.sqrt(max(0, 1. - sin_temp**2))
-                sample[i] = cos_temp
-            cos_film[index] = sample
+                cos_theta[i] = np.sqrt(max(0, 1. - sin_theta**2)) # i番目の波長帯での入射角余弦
+            cos_theta_array[index] = cos_theta
             index = index + 1
         # 波長生成
         step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM
@@ -251,12 +226,12 @@ class Irid:
         for i in range(NSAMPLESPECTRUM):
             wl[i] = START_WAVELENGTH + step/2 + i*step
         # 反射率計算
-        rp = np.zeros(NSAMPLESPECTRUM, dtype=complex)
-        rs = np.zeros(NSAMPLESPECTRUM, dtype=complex)
+        rp = np.zeros(NSAMPLESPECTRUM, dtype=complex) # p偏光の反射係数
+        rs = np.zeros(NSAMPLESPECTRUM, dtype=complex) # s偏光の反射係数
         for j in range(NSAMPLESPECTRUM):
-            cos0 = cos_film[0][j]
-            cos1 = cos_film[1][j]
-            cos2 = cos_film[2][j]
+            cos0 = cos_theta_array[0][j]
+            cos1 = cos_theta_array[1][j]
+            cos2 = cos_theta_array[2][j]
             n0 = complex(self.films[0].eta[j], self.films[0].kappa[j])
             n1 = complex(self.films[1].eta[j], self.films[1].kappa[j])
             n2 = complex(self.films[2].eta[j], self.films[2].kappa[j])
@@ -274,8 +249,6 @@ class Irid:
             phi = 4 * np.pi * self.films[1].d / wl[j] * n1 * cos1 # 位相差
             rp[j] = irid_r(rp01, rp10, rp12, tp01, tp10, phi)
             rs[j] = irid_r(rs01, rs10, rs12, ts01, ts10, phi)
-            #rp[j] = composit_r(rp01, rp12, phi/2)
-            #rs[j] = composit_r(rs01, rs12, phi/2)
         v = (np.abs(rp)**2 + np.abs(rs)**2) / 2
         spd = Spectrum(wl, v)
         return spd
