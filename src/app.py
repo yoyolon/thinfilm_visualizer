@@ -72,6 +72,7 @@ class App(tk.Frame):
         self.window.state("zoomed")
         # スペクトルデータ
         self.spd = Spectrum(constv=0.5)
+        # 入射角
         self.var_radian = tk.DoubleVar()
         self.var_radian.set(0)
         # 薄膜
@@ -83,12 +84,13 @@ class App(tk.Frame):
         self.var_eta_base.set(1.00)
         self.var_kappa_base = tk.DoubleVar()
         self.var_kappa_base.set(0.00)
-        film1 = ThinFilm(0., Spectrum(constv=1.0), Spectrum(constv=0.0))
-        film2 = ThinFilm(self.var_thickness.get(), Spectrum(constv=self.var_eta_film.get()), Spectrum(constv=0.0))
-        film3 = ThinFilm(0., Spectrum(constv=self.var_eta_base.get()), Spectrum(constv=self.var_kappa_base.get()))
+        film1 = ThinFilm(0, Spectrum(constv=1.0))
+        film2 = ThinFilm(self.var_thickness.get(), Spectrum(constv=self.var_eta_film.get()))
+        film3 = ThinFilm(0, Spectrum(constv=self.var_eta_base.get()))
         films = [film1, film2, film3]
         self.irid = Irid(films)
         self.irid_texture = None # 画像
+
         # メインフレーム
         frm_main = ttk.Frame(master=self.window)
         frm_main.pack(fill=tk.BOTH, expand=True, padx=PADX*4, pady=PADY*4)
@@ -98,33 +100,44 @@ class App(tk.Frame):
         # 右フレーム
         frm_rgt = ttk.Frame(master=frm_main, width=600, )
         frm_rgt.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX*2)
+
         # パラメータ調整フレーム
         frm_param_ajust = ttk.LabelFrame(master=frm_lft, text="Parameter")
         frm_param_ajust.pack(fill=tk.BOTH, expand=True, pady=PADY*4)
         # スライドバー
         frm_lft_var_top = ttk.Frame(master=frm_param_ajust, width=200)
-        frm_lft_var_top.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_lft_var_top.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         frm_thickness = ttk.Frame(master=frm_lft_var_top, width=200)
-        frm_thickness.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_thickness.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         frm_eta_film = ttk.Frame(master=frm_lft_var_top, width=200)
-        frm_eta_film.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_eta_film.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         frm_eta_base = ttk.Frame(master=frm_lft_var_top, width=200)
-        frm_eta_base.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
-        frm_kappa_base = ttk.Frame(master=frm_lft_var_top, width=200)
-        frm_kappa_base.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)        
+        frm_eta_base.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+
         # 膜厚
         lbl_thickness_name = ttk.Label(master=frm_thickness, text="D")
         self.lbl_thickness_value = ttk.Label(master=frm_thickness, text="")
-        scl_thickness = ttk.Scale(master=frm_thickness, command=self.set_label_thickness, variable=self.var_thickness, 
-                                  from_=100., to=900., length=200)
+        scl_thickness = ttk.Scale(master=frm_thickness, 
+                                  command=self.set_label_thickness, 
+                                  variable=self.var_thickness, 
+                                  from_=100., 
+                                  to=900., 
+                                  length=200
+        )
         lbl_thickness_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_thickness.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
         self.lbl_thickness_value.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
+
         # 薄膜屈折率
         lbl_eta_film_name = ttk.Label(master=frm_eta_film, text="n1")
         self.lbl_eta_film_value = ttk.Label(master=frm_eta_film, text="")
-        scl_eta_film = ttk.Scale(master=frm_eta_film, command=self.set_label_eta_film, variable=self.var_eta_film, 
-                                 from_=0.0, to=2.0, length=200)
+        scl_eta_film = ttk.Scale(master=frm_eta_film, 
+                                 command=self.set_label_eta_film, 
+                                 variable=self.var_eta_film, 
+                                 from_=0.0, 
+                                 to=2.0, 
+                                 length=200
+        )
         lbl_eta_film_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_eta_film.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
         self.lbl_eta_film_value.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
@@ -136,64 +149,91 @@ class App(tk.Frame):
         lbl_eta_base_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
         scl_eta_base.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
         self.lbl_eta_base_value.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
-        # ベース消失係数
-        lbl_kappa_base_name = ttk.Label(master=frm_kappa_base, text="k2")
-        self.lbl_kappa_base_value = ttk.Label(master=frm_kappa_base, text="")
-        scl_kappa_base = ttk.Scale(master=frm_kappa_base, command=self.set_label_kappa_base, variable=self.var_kappa_base, 
-                                   from_=0.0, to=2.0, length=200)
-        lbl_kappa_base_name.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
-        scl_kappa_base.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
-        self.lbl_kappa_base_value.pack(side=tk.LEFT, fill=tk.BOTH, padx=PADX, pady=PADY)
+
         # スケールラベルの初期化
         self.set_label_thickness(self.var_thickness.get())
         self.set_label_eta_film(self.var_eta_film.get())
         self.set_label_eta_base(self.var_eta_base.get())
-        self.set_label_kappa_base(self.var_kappa_base.get())
 
-        # パラメータ調整フレーム
+        # パラメータ調整
         frm_eval_angle = ttk.LabelFrame(master=frm_lft, text="Incident Angle")
         frm_eval_angle.pack(fill=tk.BOTH, expand=True, pady=PADY)
         frm_radian = ttk.Frame(master=frm_eval_angle, width=200)
-        frm_radian.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_radian.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         frm_radian_var = ttk.Frame(master=frm_radian)
-        frm_radian_var.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_radian_var.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         scl_radian = ttk.Scale(master=frm_radian_var, length=200, variable=self.var_radian, from_=0.0, to=90.0)
         scl_radian.pack(fill=tk.BOTH, padx=PADX, pady=PADY, expand=True)
-        # ボタンフレーム
+        # ボタン
         frm_button = ttk.Frame(master=frm_lft)
         frm_button.pack(fill=tk.BOTH, expand=True, pady=PADY)
         frm_lft_btm = ttk.Frame(master=frm_button, width=200)
-        frm_lft_btm.pack(side=tk.TOP, padx=PADX, pady=PADY)
+        frm_lft_btm.pack(padx=PADX, pady=PADY)
         frm_lft_btm.rowconfigure(0, minsize=20)
         frm_lft_btm.columnconfigure([0, 1, 2], minsize=60)
-        btn_load = ttk.Button(master=frm_lft_btm, text="Csv", command=self.create_csv, width=6, padding=[2,2,2,2])
-        btn_load.grid(row=0, column=0, padx=PADX, pady=PADY, sticky="ew")
-        btn_update = ttk.Button(master=frm_lft_btm, text="Calc", command=self.draw_texture, width=6, padding=[2,2,2,2])
-        btn_update.grid(row=0, column=1, padx=PADX, pady=PADY, sticky="ew")
-        btn_plot = ttk.Button(master=frm_lft_btm, text="2DPlot", command = self.graph_plot_2D, width=6, padding=[2,2,2,2])
+        btn_load   = ttk.Button(master=frm_lft_btm, 
+                                text="Csv", 
+                                command=self.create_csv, 
+                                width=6, 
+                                padding=[2,2,2,2]
+                                )
+        btn_update = ttk.Button(master=frm_lft_btm, 
+                                text="Calc", 
+                                command=self.draw_texture, 
+                                width=6, 
+                                padding=[2,2,2,2]
+                                )
+        btn_plot   = ttk.Button(master=frm_lft_btm, 
+                                text="2DPlot", 
+                                command = self.graph_plot_2D, 
+                                width=6, 
+                                padding=[2,2,2,2]
+                                )
         btn_plot.grid(row=0, column=2, padx=PADX, pady=PADY, sticky="ew")
+        btn_load.grid(row=0, column=0, padx=PADX, pady=PADY, sticky="ew")
+        btn_update.grid(row=0, column=1, padx=PADX, pady=PADY, sticky="ew")
+
+        # スイッチ
+        frm_switch = ttk.Frame(master=frm_lft)
+        frm_switch.pack(fill=tk.BOTH, expand=True, pady=PADY)
+        self.is_graph_ajust = tk.BooleanVar()
+        self.is_gamma_correction = tk.BooleanVar()
+        self.switch_graph_ajust = ttk.Checkbutton(
+            master=frm_switch,
+            text="Graph Ajust",
+            variable=self.is_graph_ajust,
+            style="Switch.TCheckbutton",
+        )
+        self.switch_gamma_correction = ttk.Checkbutton(
+            master=frm_switch,
+            text="Gamma Correction",
+            variable=self.is_gamma_correction,
+            style="Switch.TCheckbutton",
+        )
+        self.switch_graph_ajust.pack(fill=tk.BOTH, expand=True, side=tk.LEFT, padx=PADX)
+        self.switch_gamma_correction.pack(fill=tk.BOTH, expand=True, side=tk.LEFT, padx=PADX)
 
         # テクスチャ描画(右上)
         frm_rgt_top = ttk.LabelFrame(master=frm_rgt, width=400, text="Texture")
-        frm_rgt_top.pack(fill=tk.BOTH, side=tk.TOP, expand=True, pady=PADY*4)
+        frm_rgt_top.pack(fill=tk.BOTH, expand=True, pady=PADY*4)
         frm_texture_prev = ttk.Frame(master=frm_rgt_top, width=400)
-        frm_texture_prev.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_texture_prev.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         self.canvas_texture = tk.Canvas(master=frm_texture_prev, bg="white", height=100)
-        self.canvas_texture.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        self.canvas_texture.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         canvas_width = self.canvas_texture.winfo_width()
         canvas_height = self.canvas_texture.winfo_height()
         self.canvas_texture.create_image(canvas_width/2,canvas_height/2,image=self.irid_texture) # 画像の描画
         # グラフ描画(右下)
         frm_graph = ttk.LabelFrame(master=frm_rgt, text="Spectral Reflectance")
-        frm_graph.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+        frm_graph.pack(fill=tk.BOTH, expand=True)
         frm_graph_outer = ttk.Frame(master=frm_graph)
-        frm_graph_outer.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        frm_graph_outer.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         note_graph = ttk.Notebook(master=frm_graph_outer)
-        note_graph.pack(fill=tk.BOTH, side=tk.TOP, expand=True, padx=PADX, pady=PADY)
+        note_graph.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         frm_graph_2D = ttk.Frame(master=note_graph)
-        frm_graph_2D.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+        frm_graph_2D.pack(fill=tk.BOTH, expand=True)
         frm_graph_3D = ttk.Frame(master=note_graph)
-        frm_graph_3D.pack(fill=tk.BOTH, side=tk.TOP, expand=True)
+        frm_graph_3D.pack(fill=tk.BOTH, expand=True)
         note_graph.add(frm_graph_3D, text="3D")
         note_graph.add(frm_graph_2D, text="2D")
         # 2D描画
@@ -265,10 +305,9 @@ class App(tk.Frame):
         d = round(self.var_thickness.get(),1)
         n1 = round(self.var_eta_film.get(),2)
         n2 = round(self.var_eta_base.get(),2)
-        k2 = round(self.var_kappa_base.get(),2)
-        film1 = ThinFilm(0.0, Spectrum(constv=1.0), Spectrum(constv=0.0))
-        film2 = ThinFilm(d, Spectrum(constv=n1), Spectrum(constv=0.0))
-        film3 = ThinFilm(0.0, Spectrum(constv=n2), Spectrum(constv=k2))
+        film1 = ThinFilm(0.0, Spectrum(constv=1.0))
+        film2 = ThinFilm(d, Spectrum(constv=n1))
+        film3 = ThinFilm(0.0, Spectrum(constv=n2))
         films = [film1, film2, film3]
         self.irid.films = films
         self.update()
@@ -277,8 +316,8 @@ class App(tk.Frame):
         self.create_texture(canvas_width, canvas_height)
         self.canvas_texture.create_image(canvas_width/2,canvas_height/2,image=self.irid_texture)
         self.graph_plot_3D() # 3Dの描画        
-    
-    
+
+
     def create_texture(self, width, height):
         """
         テクスチャを生成
@@ -304,8 +343,8 @@ class App(tk.Frame):
         path = tk.filedialog.asksaveasfilename(filetypes=[("CSV", "csv")], defaultextension="csv",
                                                initialdir="out", initialfile="out.csv")
         self.irid.create_csv(path)
-        
-        
+
+
     def set_label_thickness(self, value):
         """
         膜厚ラベルの更新
@@ -317,7 +356,7 @@ class App(tk.Frame):
 
         """
         self.lbl_thickness_value['text'] = str(round(float(value), 1))
-        
+
 
     def set_label_eta_film(self, value):
         """
@@ -345,17 +384,3 @@ class App(tk.Frame):
         """
         s = str(round(float(value), 2))
         self.lbl_eta_base_value['text'] = s.rjust(6)
-
-
-    def set_label_kappa_base(self, value):
-        """
-        ベース材質消衰係数ラベルの更新
-
-        Parameters
-        ----------
-        value : float
-            ベース材質の消衰係数
-
-        """
-        s = str(round(float(value), 2))
-        self.lbl_kappa_base_value['text'] = s.rjust(6)
