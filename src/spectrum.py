@@ -7,6 +7,14 @@ from utility import *
 from config import *
 
 
+# 定数
+START_WAVELENGTH = 200 # 開始波長
+END_WAVELENGTH = 1000  # 終了波長
+NSAMPLESPECTRUM = 80    # 波長サンプル数
+RANGE_WAVELENGTH = END_WAVELENGTH - START_WAVELENGTH # 波長範囲
+STEP_WAVELENGTH = RANGE_WAVELENGTH / NSAMPLESPECTRUM # 波長サンプリング間隔
+
+
 class Spectrum:
     """
     スペクトルを表現するクラス
@@ -16,9 +24,13 @@ class Spectrum:
     __c : ndarray
         波長に対応する値
     __wl : ndarray
-        波長
+        波長(等間隔サンプリング)
     __name : string
         プロット時の名前
+
+    Note
+    ----
+    スペクトルは等間隔でサンプリングされた波長ごとのペアで表現
     """
 
 
@@ -39,77 +51,71 @@ class Spectrum:
         """
         self.__c = np.zeros(NSAMPLESPECTRUM)
         self.__wl = np.zeros(NSAMPLESPECTRUM)
-        self.__wl_mod = np.zeros(NSAMPLESPECTRUM)        
         self.__name = name
-        step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM
+        # 波長配列の計算
         for i in range(NSAMPLESPECTRUM):
-            self.__wl[i] = START_WAVELENGTH+ step * i
-            self.__wl_mod[i] = START_WAVELENGTH+ step * i + step * 0.5
+            self.__wl[i] = START_WAVELENGTH + STEP_WAVELENGTH * i + STEP_WAVELENGTH * 0.5
         # 波長と値のペアが与えられた場合
         if (wl is not None and v is not None):
-            self.from_sample(wl, v)         
+            self.from_sample(wl, v)
         # 定数がえられた場合
         elif (constv is not None):
             self.__c = np.full(NSAMPLESPECTRUM, constv)
-            
-            
+
+
     @property
     def c(self):
         return self.__c
-    
+
     @property
     def wl(self):
         return self.__wl
-    
-    @property
-    def wl_mod(self):
-        return self.__wl_mod
-    
+
     @property
     def name(self):
         return self.__name
-    
+
     @name.setter
     def name(self, name):
         self.__name = name
-    
-    
+
+
     def __add__(self, other):
         if type(other) == Spectrum:
-            return Spectrum(self.wl_mod, self.c + other.c)
+            return Spectrum(self.wl, self.c + other.c)
         else:
             raise TypeError()
-    
+
     def __sub__(self, other):
         if type(other) == Spectrum:
-            return Spectrum(self.wl_mod, self.c - other.c)
+            return Spectrum(self.wl, self.c - other.c)
         else:
             raise TypeError()
-    
+
     def __mul__(self, other):
         if type(other) == Spectrum:
-            return Spectrum(self.wl_mod, self.c * other.c)
+            return Spectrum(self.wl, self.c * other.c)
         else:
-            return Spectrum(self.wl_mod, self.c * other)            
-            
+            return Spectrum(self.wl, self.c * other)
+
     def __rmul__(self, other):
         if type(other) == Spectrum:
-            return Spectrum(self.wl_mod, self.c * other.c)
+            return Spectrum(self.wl, self.c * other.c)
         else:
-            return Spectrum(self.wl_mod, self.c * other)              
-            
+            return Spectrum(self.wl, self.c * other)
+
     def __truediv__(self, other):
         if type(other) == Spectrum:
             if (not other.is_zero_div()):
                 raise ZeroDivisionError()
-            return Spectrum(self.wl_mod, self.c / other.c)
+            return Spectrum(self.wl, self.c / other.c)
         else:
-            return Spectrum(self.wl_mod, self.c / other)
-    
+            return Spectrum(self.wl, self.c / other)
+
     def __getitem__(self, key):
         return self.c[key]
-    
-    
+
+
 
     def from_sample(self, wl, v):
         """
@@ -133,7 +139,7 @@ class Spectrum:
             lambda1 = lerp((i+1)/NSAMPLESPECTRUM, START_WAVELENGTH, END_WAVELENGTH)
             self.__c[i] = np.interp((lambda0+lambda1)*0.5, wl, v)
 
-            
+
     def to_xyz(self):
         """
         SPDをXYZ三刺激値に変換
