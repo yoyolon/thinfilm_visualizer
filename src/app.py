@@ -105,36 +105,36 @@ class App(tk.Frame):
 
         # 膜厚
         lbl_thickness_name = ttk.Label(master=frm_param_ajust, text="Film thickness")
-        lbl_thickness_name.grid(row=0, column=0, pady=(0, 10), sticky="w")
+        lbl_thickness_name.grid(row=0, column=0, padx=PADX, pady=PADY, sticky="w")
         self.spinbox_thickness = ttk.Spinbox(master=frm_param_ajust, 
                                              from_=100, 
                                              to=1000, 
                                              increment=1.0,
                                              textvariable=self.var_thickness
                                              )
-        self.spinbox_thickness.grid(row=0, column=1, pady=(0, 10), sticky="w")
+        self.spinbox_thickness.grid(row=0, column=1, padx=PADX, pady=PADY, sticky="w")
 
         # 薄膜屈折率
         lbl_eta_film_name = ttk.Label(master=frm_param_ajust, text="Film IOR")
-        lbl_eta_film_name.grid(row=1, column=0, pady=(0, 10), sticky="w")
+        lbl_eta_film_name.grid(row=1, column=0, padx=PADX, pady=PADY, sticky="w")
         self.spinbox_eta_film = ttk.Spinbox(master=frm_param_ajust, 
                                             from_=1, 
                                             to=3, 
                                             increment=0.01,
                                             textvariable=self.var_eta_film
                                             )
-        self.spinbox_eta_film.grid(row=1, column=1, pady=(0, 10), sticky="w")
+        self.spinbox_eta_film.grid(row=1, column=1, padx=PADX, pady=PADY, sticky="w")
 
         # ベース屈折率
         lbl_eta_base_name = ttk.Label(master=frm_param_ajust, text="Base IOR")
-        lbl_eta_base_name.grid(row=2, column=0, pady=(0, 10), sticky="w")
+        lbl_eta_base_name.grid(row=2, column=0, padx=PADX, pady=PADY, sticky="w")
         self.spinbox_eta_base = ttk.Spinbox(master=frm_param_ajust, 
                                             from_=1, 
                                             to=3, 
                                             increment=0.01,
                                             textvariable=self.var_eta_base
                                             )
-        self.spinbox_eta_base.grid(row=2, column=1, pady=(0, 10), sticky="w")
+        self.spinbox_eta_base.grid(row=2, column=1, padx=PADX, pady=PADY, sticky="w")
 
         # 入射角
         frm_eval_angle = ttk.LabelFrame(master=frm_lft, text="Incident Angle")
