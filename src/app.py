@@ -96,13 +96,14 @@ class App(tk.Frame):
         frm_main = ttk.Frame(master=self.window)
         frm_main.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
-        # 左フレーム
-        frm_lft = ttk.Frame(master=frm_main)
-        frm_lft.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
 
         # 右フレーム
         frm_rgt = ttk.Frame(master=frm_main)
         frm_rgt.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
+
+        # 左フレーム
+        frm_lft = ttk.Frame(master=frm_main)
+        frm_lft.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
 
         # パラメータ調整フレーム(左)
         frm_param_ajust = ttk.LabelFrame(master=frm_lft, text="Parameter")
@@ -110,7 +111,7 @@ class App(tk.Frame):
 
         # テクスチャ描画
         frm_texture_prev = ttk.Frame(master=frm_param_ajust)
-        frm_texture_prev.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+        frm_texture_prev.pack(fill=tk.Y, padx=PADX, pady=PADY)
         self.canvas_texture = tk.Canvas(master=frm_texture_prev, bg="white", height=60)
         self.canvas_texture.pack(fill=tk.BOTH, expand=True)
         canvas_width = self.canvas_texture.winfo_width()
