@@ -2,6 +2,11 @@ import os
 from spectrum import *
 from utility import *
 
+
+P_POLARIZED = 1 # p偏光
+S_POLARIZED = 2 # s偏光
+UNPOLARIZED = 3 # 無偏光
+
 def fresnel_rp(cos0, cos1, n0, n1):
     """
     界面でのp偏光のフレネル反射係数
@@ -175,7 +180,7 @@ class Irid:
         self.__films = f
         
     
-    def evaluate(self, cos_in):
+    def evaluate(self, cos_in, polarized=UNPOLARIZED):
         """
         薄膜干渉の分光反射率を計算
 
@@ -183,6 +188,8 @@ class Irid:
         ----------
         cos_in : float
             入射角余弦
+        polarized : int
+            偏光状態
 
         Returns
         -------
@@ -211,6 +218,7 @@ class Irid:
             index = index + 1
         # 波長生成
         step = (END_WAVELENGTH - START_WAVELENGTH) / NSAMPLESPECTRUM
+        v  = np.zeros(NSAMPLESPECTRUM)
         wl = np.zeros(NSAMPLESPECTRUM)
         for i in range(NSAMPLESPECTRUM):
             wl[i] = START_WAVELENGTH + step/2 + i*step
@@ -238,7 +246,13 @@ class Irid:
             phi = 4 * np.pi * self.films[1].d / wl[j] * n1 * cos1 # 位相差
             rp[j] = irid_r(rp01, rp10, rp12, tp01, tp10, phi)
             rs[j] = irid_r(rs01, rs10, rs12, ts01, ts10, phi)
-        v = (np.abs(rp)**2 + np.abs(rs)**2) / 2
+        # 偏光状態による場合分け
+        if polarized == UNPOLARIZED:
+            v = (np.abs(rp) ** 2 + np.abs(rs) ** 2) / 2
+        elif polarized == P_POLARIZED:
+            v = np.abs(rp) ** 2
+        elif polarized == S_POLARIZED:
+            v = np.abs(rs) ** 2
         spd = Spectrum(wl, v)
         return spd
 
