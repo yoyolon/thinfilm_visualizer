@@ -94,24 +94,24 @@ class App(tk.Frame):
 
         # メインフレーム
         frm_main = ttk.Frame(master=self.window)
-        frm_main.pack(fill=tk.BOTH, expand=True, padx=PADX*2, pady=PADY)
+        frm_main.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         # 左フレーム
         frm_lft = ttk.Frame(master=frm_main)
-        frm_lft.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX*2, pady=PADY)
+        frm_lft.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
 
         # 右フレーム
         frm_rgt = ttk.Frame(master=frm_main)
-        frm_rgt.pack(fill=tk.BOTH, side=tk.LEFT, expand=True, padx=PADX*2, pady=PADY)
+        frm_rgt.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
 
         # パラメータ調整フレーム(左)
         frm_param_ajust = ttk.LabelFrame(master=frm_lft, text="Parameter")
-        frm_param_ajust.pack(fill=tk.BOTH, expand=True, pady=PADY)
+        frm_param_ajust.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         # テクスチャ描画
         frm_texture_prev = ttk.Frame(master=frm_param_ajust)
-        frm_texture_prev.grid(row=0, column=0, padx=PADX, pady=PADY, sticky="ew")
-        self.canvas_texture = tk.Canvas(master=frm_texture_prev, bg="white", width=90, height=30)
+        frm_texture_prev.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+        self.canvas_texture = tk.Canvas(master=frm_texture_prev, bg="white", height=60)
         self.canvas_texture.pack(fill=tk.BOTH, expand=True)
         canvas_width = self.canvas_texture.winfo_width()
         canvas_height = self.canvas_texture.winfo_height()
@@ -121,125 +121,133 @@ class App(tk.Frame):
                                          )
 
         # セパレータ
-        separator2 = ttk.Separator(master=frm_param_ajust)
-        separator2.grid(row=1, column=0, padx=PADX, pady=PADY, sticky="ew")
+        separator = ttk.Separator(master=frm_param_ajust)
+        separator.pack(fill=tk.X, padx=PADX, pady=PADY)
 
         # 膜厚
         frm_thickness = ttk.Frame(master=frm_param_ajust)
-        frm_thickness.grid(row=2, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        frm_thickness.pack(padx=PADX, pady=PADY)
         lbl_thickness_name = ttk.Label(master=frm_thickness, text="D ")
-        lbl_thickness_name.grid(row=0, column=0, padx=PADX, sticky="ew")
+        lbl_thickness_name.grid(row=0, column=0, padx=(0,PADX), sticky="ew")
         self.spinbox_thickness = ttk.Spinbox(master=frm_thickness, 
                                              from_=100, 
                                              to=1000, 
                                              increment=1.0,
                                              textvariable=self.var_thickness
                                              )
-        self.spinbox_thickness.grid(row=0, column=1, padx=PADX, sticky="ewns")
+        self.spinbox_thickness.grid(row=0, column=1, sticky="ewns")
 
         # 薄膜屈折率
         frm_eta_film = ttk.Frame(master=frm_param_ajust)
-        frm_eta_film.grid(row=3, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        frm_eta_film.pack(padx=PADX, pady=PADY)
         lbl_eta_film_name = ttk.Label(master=frm_eta_film, text="n1")
-        lbl_eta_film_name.grid(row=0, column=0, padx=PADX, sticky="ew")
+        lbl_eta_film_name.grid(row=0, column=0, padx=(0,PADX), sticky="ew")
         self.spinbox_eta_film = ttk.Spinbox(master=frm_eta_film, 
                                             from_=1, 
                                             to=3, 
                                             increment=0.01,
                                             textvariable=self.var_eta_film
                                             )
-        self.spinbox_eta_film.grid(row=0, column=1, padx=PADX, sticky="ew")
+        self.spinbox_eta_film.grid(row=0, column=1, sticky="ew")
 
         # ベース屈折率
         frm_eta_base = ttk.Frame(master=frm_param_ajust)
-        frm_eta_base.grid(row=4, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        frm_eta_base.pack(padx=PADX, pady=PADY)
         lbl_eta_base_name = ttk.Label(master=frm_eta_base, text="n2")
-        lbl_eta_base_name.grid(row=0, column=0, padx=PADX, sticky="ew")
+        lbl_eta_base_name.grid(row=0, column=0, padx=(0,PADX), sticky="ew")
         self.spinbox_eta_base = ttk.Spinbox(master=frm_eta_base, 
                                             from_=1, 
                                             to=3, 
                                             increment=0.01,
                                             textvariable=self.var_eta_base
                                             )
-        self.spinbox_eta_base.grid(row=0, column=1, padx=PADX, sticky="ew")
+        self.spinbox_eta_base.grid(row=0, column=1, sticky="ew")
 
         # 入射角
         frm_incident = ttk.Frame(master=frm_param_ajust)
-        frm_incident.grid(row=5, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        frm_incident.pack(padx=PADX, pady=PADY)
         lbl_incident_angle = ttk.Label(master=frm_incident, text="θ")
-        lbl_incident_angle.grid(row=0, column=0, padx=PADX, sticky="ew")
+        lbl_incident_angle.grid(row=0, column=0, padx=(0,PADX), sticky="ew")
         self.spinbox_incident = ttk.Spinbox(master=frm_incident, 
                                             from_=0, 
                                             to=90, 
                                             increment=0.1,
                                             textvariable=self.var_angle
                                             )
-        self.spinbox_incident.grid(row=0, column=1, padx=PADX, sticky="ew")
+        self.spinbox_incident.grid(row=0, column=1, sticky="ew")
 
         # セパレータ
         separator2 = ttk.Separator(master=frm_param_ajust)
-        separator2.grid(row=6, column=0, padx=PADX, pady=PADY, sticky="ew")
+        separator2.pack(fill=tk.X, padx=PADX, pady=PADY)
+
+        # 偏光状態の選択
+        frm_polarized = ttk.Frame(master=frm_param_ajust)
+        frm_polarized.pack(padx=PADX, pady=PADY)
+        self.var_polarized = tk.IntVar()
+        self.var_polarized.set(UNPOLARIZED)
+        # 無偏光
+        radio_unpolarized = ttk.Radiobutton(master=frm_polarized,
+                                          text="unpolarized",
+                                          value=UNPOLARIZED,
+                                          variable=self.var_polarized
+                                          )
+        radio_unpolarized.grid(row=0, column=0, padx=PADX, sticky="ew")
+        # p偏光
+        radio_p_polarized = ttk.Radiobutton(master=frm_polarized,
+                                          text="p-wave",
+                                          value=P_POLARIZED,
+                                          variable=self.var_polarized
+                                          )
+        radio_p_polarized.grid(row=0, column=1, padx=PADX, sticky="ew")
+        # s偏光
+        radio_s_polarized = ttk.Radiobutton(master=frm_polarized,
+                                          text="s-wave",
+                                          value=S_POLARIZED,
+                                          variable=self.var_polarized
+                                          )
+        radio_s_polarized.grid(row=0, column=2, padx=PADX, sticky="ew")
+
+
+        # セパレータ
+        separator3 = ttk.Separator(master=frm_param_ajust)
+        separator3.pack(fill=tk.X, padx=PADX, pady=PADY)
 
         # 保存ボタン
         btn_load   = ttk.Button(master=frm_param_ajust, 
                                 text="Save Csv", 
                                 command=self.create_csv, 
                                 )
-        btn_load.grid(row=7, column=0, padx=PADX, pady=PADY, sticky="ew")
+        btn_load.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         # 計算ボタン
         btn_update = ttk.Button(master=frm_param_ajust, 
                                 text="Calculate", 
                                 command=self.draw_texture, 
                                 )
-        btn_update.grid(row=8, column=0, padx=PADX, pady=PADY, sticky="ew")
+        btn_update.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         # グラフ描画ボタン
         btn_plot   = ttk.Button(master=frm_param_ajust, 
                                 text="Plot Graph", 
                                 command = self.graph_plot_2D, 
                                 )
-        btn_plot.grid(row=9, column=0, padx=PADX, pady=PADY, sticky="ew")
+        btn_plot.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+        # グラフリセットボタン
+        btn_reset  = ttk.Button(master=frm_param_ajust, 
+                                text="Reset Graph", 
+                                command = self.graph_reset_2D, 
+                                )
+        btn_reset.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         # スイッチ(ONにすると反射率の表示領域が[0,1)になる)
         self.is_graph_ajust = tk.BooleanVar()
         self.is_graph_ajust.set(False)
-        self.switch_graph_ajust = ttk.Checkbutton(master=frm_param_ajust,
+        switch_graph_ajust = ttk.Checkbutton(master=frm_param_ajust,
                                                   text="Graph Ajust",
                                                   variable=self.is_graph_ajust,
                                                   onvalue=True,
                                                   offvalue=False,
                                                   style="Switch.TCheckbutton",
                                                   )
-        self.switch_graph_ajust.grid(row=10, column=0, padx=PADX, pady=PADY, sticky="ew")
-
-        # セパレータ
-        separator3 = ttk.Separator(master=frm_param_ajust)
-        separator3.grid(row=11, column=0, padx=PADX, pady=PADY, sticky="ew")
-
-        # 無偏光状態
-        self.var_polarized = tk.IntVar()
-        self.var_polarized.set(UNPOLARIZED)
-        radio_unpolarized = ttk.Radiobutton(master=frm_param_ajust,
-                                          text="UNPOLARIZED",
-                                          value=UNPOLARIZED,
-                                          variable=self.var_polarized
-                                          )
-        radio_unpolarized.grid(row=12, column=0, padx=PADX, pady=PADY, sticky="ew")
-
-        # p偏光状態
-        radio_p_polarized = ttk.Radiobutton(master=frm_param_ajust,
-                                          text="P-POLARIZED",
-                                          value=P_POLARIZED,
-                                          variable=self.var_polarized
-                                          )
-        radio_p_polarized.grid(row=13, column=0, padx=PADX, pady=PADY, sticky="ew")
-
-        # s偏光状態
-        radio_s_polarized = ttk.Radiobutton(master=frm_param_ajust,
-                                          text="S-POLARIZED",
-                                          value=S_POLARIZED,
-                                          variable=self.var_polarized
-                                          )
-        radio_s_polarized.grid(row=14, column=0, padx=PADX, pady=PADY, sticky="ew")
+        switch_graph_ajust.pack(padx=PADX, pady=PADY)
 
 
         # グラフ描画(右)
@@ -250,7 +258,7 @@ class App(tk.Frame):
         frm_graph_outer.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         note_graph = ttk.Notebook(master=frm_graph_outer)
-        note_graph.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+        note_graph.pack(fill=tk.BOTH, expand=True)
 
         # 2Dグラフ描画
         frm_graph_2D = ttk.Frame(master=note_graph)
@@ -281,9 +289,17 @@ class App(tk.Frame):
         note_graph.add(frm_graph_3D, text="3D")
 
 
+    def graph_reset_2D(self):
+        """2Dグラフのリセット"""
+        self.ax_2D.cla() #前の描画データの削除
+        # 空プロット
+        self.ax_2D.set_xlabel("wavelength(nm)")
+        self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.canvas_graph_2D.draw()
+
+
     def graph_plot_2D(self):
         """2Dグラフを描画"""
-        #self.ax_2D.cla() #前の描画データの削除
         cosTerm = np.cos(to_radian(self.var_angle.get())) # 入射角余弦
         self.spd = self.irid.evaluate(cosTerm, self.var_polarized.get())
         linecolor = self.spd.to_rgb()
