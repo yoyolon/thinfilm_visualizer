@@ -125,49 +125,56 @@ class App(tk.Frame):
         separator2.grid(row=1, column=0, padx=PADX, pady=PADY, sticky="ew")
 
         # 膜厚
-        lbl_thickness_name = ttk.Label(master=frm_param_ajust, text="D")
-        lbl_thickness_name.grid(row=2, column=1, padx=PADX, sticky="ew")
-        self.spinbox_thickness = ttk.Spinbox(master=frm_param_ajust, 
+        frm_thickness = ttk.Frame(master=frm_param_ajust)
+        frm_thickness.grid(row=2, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        lbl_thickness_name = ttk.Label(master=frm_thickness, text="D ")
+        lbl_thickness_name.grid(row=0, column=0, padx=PADX, sticky="ew")
+        self.spinbox_thickness = ttk.Spinbox(master=frm_thickness, 
                                              from_=100, 
                                              to=1000, 
                                              increment=1.0,
-                                             width=6,
                                              textvariable=self.var_thickness
                                              )
-        self.spinbox_thickness.grid(row=2, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        self.spinbox_thickness.grid(row=0, column=1, padx=PADX, sticky="ewns")
 
         # 薄膜屈折率
-        lbl_eta_film_name = ttk.Label(master=frm_param_ajust, text="n1")
-        lbl_eta_film_name.grid(row=3, column=1, padx=PADX, sticky="ew")
-        self.spinbox_eta_film = ttk.Spinbox(master=frm_param_ajust, 
+        frm_eta_film = ttk.Frame(master=frm_param_ajust)
+        frm_eta_film.grid(row=3, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        lbl_eta_film_name = ttk.Label(master=frm_eta_film, text="n1")
+        lbl_eta_film_name.grid(row=0, column=0, padx=PADX, sticky="ew")
+        self.spinbox_eta_film = ttk.Spinbox(master=frm_eta_film, 
                                             from_=1, 
                                             to=3, 
                                             increment=0.01,
                                             textvariable=self.var_eta_film
                                             )
-        self.spinbox_eta_film.grid(row=3, column=0, padx=PADX, pady=PADY, sticky="ew")
+        self.spinbox_eta_film.grid(row=0, column=1, padx=PADX, sticky="ew")
 
         # ベース屈折率
-        lbl_eta_base_name = ttk.Label(master=frm_param_ajust, text="n2")
-        lbl_eta_base_name.grid(row=4, column=1, padx=PADX, sticky="ew")
-        self.spinbox_eta_base = ttk.Spinbox(master=frm_param_ajust, 
+        frm_eta_base = ttk.Frame(master=frm_param_ajust)
+        frm_eta_base.grid(row=4, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        lbl_eta_base_name = ttk.Label(master=frm_eta_base, text="n2")
+        lbl_eta_base_name.grid(row=0, column=0, padx=PADX, sticky="ew")
+        self.spinbox_eta_base = ttk.Spinbox(master=frm_eta_base, 
                                             from_=1, 
                                             to=3, 
                                             increment=0.01,
                                             textvariable=self.var_eta_base
                                             )
-        self.spinbox_eta_base.grid(row=4, column=0, padx=PADX, pady=PADY, sticky="ew")
+        self.spinbox_eta_base.grid(row=0, column=1, padx=PADX, sticky="ew")
 
         # 入射角
-        lbl_incident_angle = ttk.Label(master=frm_param_ajust, text="θ")
-        lbl_incident_angle.grid(row=5, column=1, padx=PADX, sticky="ew")
-        self.spinbox_incident = ttk.Spinbox(master=frm_param_ajust, 
+        frm_incident = ttk.Frame(master=frm_param_ajust)
+        frm_incident.grid(row=5, column=0, padx=PADX, pady=PADY, sticky="ewns")
+        lbl_incident_angle = ttk.Label(master=frm_incident, text="θ")
+        lbl_incident_angle.grid(row=0, column=0, padx=PADX, sticky="ew")
+        self.spinbox_incident = ttk.Spinbox(master=frm_incident, 
                                             from_=0, 
                                             to=90, 
                                             increment=0.1,
                                             textvariable=self.var_angle
                                             )
-        self.spinbox_incident.grid(row=5, column=0, padx=PADX, pady=PADY, sticky="ew")
+        self.spinbox_incident.grid(row=0, column=1, padx=PADX, sticky="ew")
 
         # セパレータ
         separator2 = ttk.Separator(master=frm_param_ajust)
@@ -245,16 +252,9 @@ class App(tk.Frame):
         note_graph = ttk.Notebook(master=frm_graph_outer)
         note_graph.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
+        # 2Dグラフ描画
         frm_graph_2D = ttk.Frame(master=note_graph)
         frm_graph_2D.pack(fill=tk.BOTH, expand=True)
-
-        frm_graph_3D = ttk.Frame(master=note_graph)
-        frm_graph_3D.pack(fill=tk.BOTH, expand=True)
-
-        note_graph.add(frm_graph_2D, text="2D")
-        note_graph.add(frm_graph_3D, text="3D")
-
-        # 2Dグラフ描画
         self.fig_2D = plt.Figure()
         self.fig_2D.subplots_adjust(bottom=0.15, top=0.9) # 領域調整
         self.ax_2D = self.fig_2D.add_subplot(1, 1, 1)
@@ -264,6 +264,8 @@ class App(tk.Frame):
         self.canvas_graph_2D.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
         # 3Dグラフ描画
+        frm_graph_3D = ttk.Frame(master=note_graph)
+        frm_graph_3D.pack(fill=tk.BOTH, expand=True)
         self.fig_3D = plt.Figure()
         self.fig_3D.subplots_adjust(left=0, right=1, bottom=0.03, top=1.05) # 領域調整
         self.ax_3D = self.fig_3D.add_subplot(1, 1, 1, projection="3d")
@@ -274,10 +276,14 @@ class App(tk.Frame):
         self.canvas_graph_3D = FigureCanvasTkAgg(self.fig_3D, frm_graph_3D)
         self.canvas_graph_3D.get_tk_widget().pack(fill=tk.BOTH, expand=True)
 
+        # ノートブックに追加
+        note_graph.add(frm_graph_2D, text="2D")
+        note_graph.add(frm_graph_3D, text="3D")
+
 
     def graph_plot_2D(self):
         """2Dグラフを描画"""
-        self.ax_2D.cla() #前の描画データの削除
+        #self.ax_2D.cla() #前の描画データの削除
         cosTerm = np.cos(to_radian(self.var_angle.get())) # 入射角余弦
         self.spd = self.irid.evaluate(cosTerm, self.var_polarized.get())
         linecolor = self.spd.to_rgb()
