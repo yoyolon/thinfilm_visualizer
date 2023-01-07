@@ -388,10 +388,10 @@ class App(tk.Frame):
 
 
     def create_csv(self):
-        """分光反射率をCSV出力する"""
+        """RGB反射率をCSV出力する"""
         path = tk.filedialog.asksaveasfilename(filetypes=[("CSV", "csv")], 
                                                defaultextension="csv",
                                                initialdir="out", 
-                                               initialfile="out.csv"
+                                               initialfile="LUT.csv"
                                                )
         self.irid.create_csv(path)

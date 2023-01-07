@@ -296,8 +296,10 @@ class Irid:
         """
 
         data = np.zeros([90, NSAMPLESPECTRUM])
+        RGB = np.zeros([90, 3])
         for i in range (90):
             spd = self.evaluate(np.cos(np.pi/180 * i))
-            for j in range (NSAMPLESPECTRUM):
-                data[i][j] = spd.c[j]
-        np.savetxt(path ,data,delimiter=',', fmt='%.4f')
+            RGB[i] = spd.to_rgb()
+            #for j in range (NSAMPLESPECTRUM):
+            #    data[i][j] = spd.c[j]
+        np.savetxt(path ,np.clip(RGB,0.0,1.0),delimiter=',', fmt='%.4f')
