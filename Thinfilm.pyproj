@@ -28,6 +28,9 @@
     <Compile Include="src\app.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="src\cmf.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="src\film.py">
       <SubType>Code</SubType>
     </Compile>

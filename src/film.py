@@ -169,7 +169,7 @@ class Irid:
             薄膜層の配列
         """
         self.__films = films
-    
+
 
     @property
     def films(self):
@@ -178,8 +178,7 @@ class Irid:
     @films.setter
     def films(self, f):
         self.__films = f
-        
-    
+
     def evaluate(self, cos_in, polarized=UNPOLARIZED):
         """
         薄膜干渉の分光反射率を計算
@@ -287,7 +286,7 @@ class Irid:
 
     def create_csv(self, path):
         """
-        入射角が0-90度の分光反射率をCSV出力
+        入射角が0-90度の反射率をCSV出力
 
         Parameters
         ----------

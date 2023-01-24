@@ -7,6 +7,7 @@ import tkinter as tk
 from tkinter import ttk
 from film import *
 from spectrum import *
+from config import *
 
 
 # 定数
@@ -299,20 +300,46 @@ class App(tk.Frame):
         self.canvas_graph_2D.draw()
 
 
-    def graph_plot_2D(self):
-        """2Dグラフを描画"""
-        cosTerm = np.cos(to_radian(self.var_angle.get())) # 入射角余弦
-        self.spd = self.irid.evaluate(cosTerm, self.var_polarized.get())
+    def decide_line_color_and_name(self, spd, angle):
+        """
+        spdをもとにグラフのプロットカラーと名前を決定
+
+        Parameters
+        ----------
+        spd : Spectrum
+            スペクトルデータ
+
+        Returns
+        -------
+        linecolor : ndarray
+            プロット線のRGB値
+        """
+        linename = str(int(angle)) + "°"
         linecolor = self.spd.to_rgb()
-        # ガンマ補正
         inv_gamma = 1 / 2.2
-        linecolor = np.clip(linecolor, 0.0, 1.0) ** inv_gamma
+        linecolor = np.clip(linecolor, 0.0, 1.0) ** inv_gamma # ガンマ補正
         c_max = linecolor.max()
         if c_max < 0.7 and c_max > 0:
             linecolor *= 0.7/c_max
+        # 偏光状態に応じてプロットカラーを変更
+        polarized_state = self.var_polarized.get()
+        if (polarized_state == P_POLARIZED):
+            linecolor = np.array([linecolor[2], linecolor[0], linecolor[1]])
+            linename += "(p)"
+        elif (polarized_state == S_POLARIZED):
+            linecolor = np.array([linecolor[1], linecolor[2], linecolor[0]])
+            linename += "(s)"
+        return linecolor, linename
+
+
+    def graph_plot_2D(self):
+        """2Dグラフを描画"""
+        angle = self.var_angle.get() # 入射角
+        cos_incident = np.cos(to_radian(angle))
+        self.spd = self.irid.evaluate(cos_incident, self.var_polarized.get())
+        linecolor, linename = self.decide_line_color_and_name(self.spd, angle)
         # プロット
-        self.spd.name = str(int(self.var_angle.get())) + "°"
-        self.ax_2D.plot(self.spd.wl, self.spd.c, label=self.spd.name, color=linecolor)
+        self.ax_2D.plot(self.spd.wl, self.spd.c, label=linename, color=linecolor)
         self.ax_2D.set_xlabel("wavelength(nm)")
         if (self.is_graph_ajust.get() == True):
             self.ax_2D.set_ylim(0, 1.0)

@@ -3,16 +3,16 @@ import matplotlib.ticker as ticker
 import numpy as np
 import os
 from PIL import Image, ImageTk
+from cmf import *
 from utility import *
-from config import *
 
 
 # 定数
-START_WAVELENGTH = 200 # 開始波長
-END_WAVELENGTH = 1000  # 終了波長
-NSAMPLESPECTRUM = 80    # 波長サンプル数
+START_WAVELENGTH = 200  # 開始波長
+END_WAVELENGTH   = 1000 # 終了波長
+NSAMPLESPECTRUM  = 80   # 波長サンプル数
 RANGE_WAVELENGTH = END_WAVELENGTH - START_WAVELENGTH # 波長範囲
-STEP_WAVELENGTH = RANGE_WAVELENGTH / NSAMPLESPECTRUM # 波長サンプリング間隔
+STEP_WAVELENGTH  = RANGE_WAVELENGTH / NSAMPLESPECTRUM # 波長サンプリング間隔
 
 
 class Spectrum:
@@ -30,7 +30,7 @@ class Spectrum:
 
     Note
     ----
-    スペクトルは等間隔でサンプリングされた波長ごとのペアで表現
+    スペクトルは等間隔でサンプリングされた波長と対応する値で表現
     """
 
 
@@ -54,10 +54,12 @@ class Spectrum:
         self.__name = name
         # 波長配列の計算
         for i in range(NSAMPLESPECTRUM):
-            self.__wl[i] = START_WAVELENGTH + STEP_WAVELENGTH * i + STEP_WAVELENGTH * 0.5
+            self.__wl[i] = (START_WAVELENGTH 
+                            + STEP_WAVELENGTH * i 
+                            + STEP_WAVELENGTH * 0.5)
         # 波長と値のペアが与えられた場合
         if (wl is not None and v is not None):
-            self.from_sample(wl, v)
+            self.from_sample(wl, v) # サンプルからスペクトルを生成
         # 定数がえられた場合
         elif (constv is not None):
             self.__c = np.full(NSAMPLESPECTRUM, constv)
@@ -168,7 +170,6 @@ class Spectrum:
         xyz = self.to_xyz()
         rgb = xyz_to_rgb(xyz)
         return rgb
-    
 
     def is_black(self):
         """ゼロ判定"""
@@ -180,9 +181,29 @@ class Spectrum:
         return np.count_nonzero(self.c)
 
 
+def create_cmf():
+    """
+    XYZ等色関数の波長と値のペアを生成する関数
+
+    Returns
+    -------
+    wl  : 波長配列
+    xyz : xyz等色関数の配列
+    """
+    wl = np.zeros(NSAMPLESPECTRUM)
+    xyz = np.zeros([3, NSAMPLESPECTRUM])
+    for i in range(NSAMPLESPECTRUM):
+        wl[i] = START_WAVELENGTH  + STEP_WAVELENGTH * i + STEP_WAVELENGTH * 0.5
+        xyz[0][i] = cmf_x_simple(wl[i])
+        xyz[1][i] = cmf_y_simple(wl[i])
+        xyz[2][i] = cmf_z_simple(wl[i])
+    return wl, xyz
+
+
 # XYZ等色関数の生成
-path_xyz = os.path.join('data', 'cmf', 'ciexyz31.csv')
-wl, xyz = load_cmf(path_xyz)
+#path_xyz = os.path.join('data', 'cmf', 'ciexyz31.csv')
+#wl, xyz = load_cmf(path_xyz)
+wl, xyz = create_cmf()
 X = Spectrum(wl, xyz[0], name='X')
 Y = Spectrum(wl, xyz[1], name='Y')
 Z = Spectrum(wl, xyz[2], name='Z')
