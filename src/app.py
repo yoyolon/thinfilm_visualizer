@@ -361,7 +361,7 @@ class App(tk.Frame):
             for j in range(NSAMPLESPECTRUM):
                 Z[i][j] = temp.c[j]
         self.ax_3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
-        self.ax_3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//3, color="red",linewidth=1)
+        #self.ax_3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//3, color="red",linewidth=1)
         self.ax_3D.set_zlim(0.0, 1.0)
         self.ax_3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax_3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
