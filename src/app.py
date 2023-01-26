@@ -68,7 +68,7 @@ class App(tk.Frame):
         super().__init__(window)
         # ウィンドウの設定
         self.window = window
-        self.window.title("Thinfilm Tester")
+        self.window.title("Thinfilm Visualizer")
         self.window.geometry("960x540")
         self.window.state("zoomed")
 
