@@ -1,7 +1,7 @@
 # thinfilm_visualizer
 
 <div align="center">
-  <img src="imgs/fig1_ui.png" width=90% />
+  <img src="imgs/fig1_UI.png" width=90% />
   <p>図1 ユーザインターフェース </p>
 </div>
 
