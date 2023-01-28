@@ -24,10 +24,10 @@
 
 ### 外部ライブラリ
 
-- Numpy
-- matplotlib
-- Pillow
-- sv_ttk
+- [Numpy](https://github.com/numpy/numpy)
+- [matplotlib](https://github.com/matplotlib/matplotlib)
+- [Pillow](https://github.com/python-pillow/Pillow)
+- [sv_ttk](https://github.com/rdbende/Sun-Valley-ttk-theme)
 
 ## 機能
 
@@ -39,6 +39,13 @@
 - 偏光ごとの(強度)反射率を
 
 ## 使い方
+
+`src`ディレクトリの`main.py`を実行してください．
+実行すると図1や図2のような画面が立ち上がります．
+
+```sl
+python main.py
+```
 
 <div align="center">
   <img src="imgs/fig2_explain.png" width=90% />
