@@ -33,6 +33,8 @@ class App(tk.Frame):
         薄膜の屈折率
     var_eta_base : DoubleVar
         ベース材質の屈折
+    is_graph_ajust : BooleanVar
+        グラフを調整するかどうか
     irid : Irid
         薄膜干渉計算クラス
     irid_texture : PhotoImage
@@ -218,22 +220,22 @@ class App(tk.Frame):
         btn_update.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         # グラフ描画ボタン
         btn_plot   = ttk.Button(master=frm_param_ajust, 
-                                text="Plot Graph", 
-                                command = self.graph_plot_2D, 
+                                text="Plot", 
+                                command = self.plot_graph, 
                                 )
         btn_plot.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         # グラフリセットボタン
         btn_reset  = ttk.Button(master=frm_param_ajust, 
-                                text="Reset Graph", 
-                                command = self.graph_reset_2D, 
+                                text="Reset", 
+                                command = self.reset_graph, 
                                 )
         btn_reset.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
-        # 保存ボタン
-        btn_load   = ttk.Button(master=frm_param_ajust, 
-                                text="Save Table", 
-                                command=self.create_csv, 
-                                )
-        btn_load.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+        ## 保存ボタン
+        #btn_load   = ttk.Button(master=frm_param_ajust, 
+        #                        text="Save Table", 
+        #                        command=self.create_csv, 
+        #                        )
+        #btn_load.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         # スイッチ(ONにすると反射率の表示領域が[0,1)になる)
         self.is_graph_ajust = tk.BooleanVar()
@@ -247,17 +249,11 @@ class App(tk.Frame):
                                                   )
         switch_graph_ajust.pack(padx=PADX, pady=PADY)
 
-
-        # グラフ描画
+        # グラフ描画フレーム
         frm_graph = ttk.Frame(master=frm_rgt)
         frm_graph.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
-
-        frm_graph_outer = ttk.Frame(master=frm_graph)
-        frm_graph_outer.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
-
-        note_graph = ttk.Notebook(master=frm_graph_outer)
+        note_graph = ttk.Notebook(master=frm_graph)
         note_graph.pack(fill=tk.BOTH, expand=True)
-
         # 2Dグラフ描画
         frm_graph_2D = ttk.Frame(master=note_graph)
         frm_graph_2D.pack(fill=tk.BOTH, expand=True)
@@ -268,7 +264,6 @@ class App(tk.Frame):
         self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
         self.canvas_graph_2D = FigureCanvasTkAgg(self.fig_2D, frm_graph_2D)
         self.canvas_graph_2D.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
         # 3Dグラフ描画
         frm_graph_3D = ttk.Frame(master=note_graph)
         frm_graph_3D.pack(fill=tk.BOTH, expand=True)
@@ -281,19 +276,27 @@ class App(tk.Frame):
         self.ax_3D.view_init(elev=20, azim=-45) # グラフ角度調整
         self.canvas_graph_3D = FigureCanvasTkAgg(self.fig_3D, frm_graph_3D)
         self.canvas_graph_3D.get_tk_widget().pack(fill=tk.BOTH, expand=True)
-
         # ノートブックに追加
         note_graph.add(frm_graph_2D, text="2D")
         note_graph.add(frm_graph_3D, text="3D")
 
 
-    def graph_reset_2D(self):
-        """2Dグラフのリセット"""
+    def reset_graph(self):
+        """グラフのリセット"""
         self.ax_2D.cla() #前の描画データの削除
-        # 空プロット
+        self.ax_3D.cla() #前の描画データの削除
+        # 空プロット(2D)
         self.ax_2D.set_xlabel("wavelength(nm)")
         self.ax_2D.yaxis.set_major_locator(ticker.MaxNLocator(4))
         self.canvas_graph_2D.draw()
+        # 空プロット(3D)
+        self.ax_3D.view_init(elev=20, azim=-45) # グラフ角度リセット
+        self.ax_3D.set_zlim(0.0, 1.0)
+        self.ax_3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.ax_3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
+        self.ax_3D.set_xlabel("wavelength(nm)")
+        self.ax_3D.set_ylabel("angle")
+        self.canvas_graph_3D.draw()
 
 
     def decide_line_color_and_name(self, spd, angle):
@@ -328,7 +331,7 @@ class App(tk.Frame):
         return linecolor, linename
 
 
-    def graph_plot_2D(self):
+    def plot_graph_2D(self):
         """2Dグラフを描画"""
         angle = self.var_angle.get() # 入射角
         cos_incident = np.cos(to_radian(angle))
@@ -344,7 +347,7 @@ class App(tk.Frame):
         self.canvas_graph_2D.draw()
 
 
-    def graph_plot_3D(self):
+    def plot_graph_3D(self):
         """3Dグラフを描画"""
         self.ax_3D.view_init(elev=20, azim=-45) # グラフ角度リセット
         spd = Spectrum()
@@ -356,14 +359,22 @@ class App(tk.Frame):
             temp = self.irid.evaluate(np.cos(np.pi/180 * i))
             for j in range(NSAMPLESPECTRUM):
                 Z[i][j] = temp.c[j]
-        self.ax_3D.plot_surface(X, Y, Z, cmap=cm.plasma, linewidth=0, antialiased=False)
-        #self.ax_3D.plot_wireframe(X, Y, Z, rstride=10, cstride=NSAMPLESPECTRUM//3, color="red",linewidth=1)
+        # プロット
+        self.ax_3D.plot_surface(X, Y, Z, cmap=cm.plasma, 
+                                linewidth=0, antialiased=False)
         self.ax_3D.set_zlim(0.0, 1.0)
         self.ax_3D.zaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax_3D.yaxis.set_major_locator(ticker.MaxNLocator(4))
         self.ax_3D.set_xlabel("wavelength(nm)")
         self.ax_3D.set_ylabel("angle")
         self.canvas_graph_3D.draw()
+
+
+    def plot_graph(self):
+        """2D/3Dグラフを描画"""
+        self.plot_graph_2D()
+        self.ax_3D.cla() #前の描画データの削除
+        self.plot_graph_3D()
 
 
     def draw_texture(self):
@@ -387,7 +398,8 @@ class App(tk.Frame):
                                          image=self.
                                          irid_texture
                                          )
-        self.graph_plot_3D() # 3Dの描画
+        self.plot_graph_2D() # 2Dの描画
+        self.plot_graph_3D() # 3Dの描画
 
 
     def create_texture(self, width, height):
@@ -410,8 +422,8 @@ class App(tk.Frame):
         self.irid_texture = ImageTk.PhotoImage(image=img)
 
 
-    def create_csv(self):
-        """RGB反射率をCSV出力する"""
+    def save_texture(self):
+        """RGB反射率テーブルを出力する"""
         path = tk.filedialog.asksaveasfilename(filetypes=[("CSV", "csv")], 
                                                defaultextension="csv",
                                                initialdir="out", 

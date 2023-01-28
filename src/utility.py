@@ -135,7 +135,7 @@ def rgb_to_xyz(rgb):
 
 def gamma_correction(rgb):
     """
-    gamma=2.2に対するガンマ補正を行い8ビットに変換
+    gamma=2.2に対するガンマ補正を行い8ビットに変換(未使用)
 
     Parameters
     ----------
