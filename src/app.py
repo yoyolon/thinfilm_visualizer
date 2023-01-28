@@ -356,7 +356,8 @@ class App(tk.Frame):
         X, Y = np.meshgrid(x, y)
         Z = np.zeros_like(X)
         for i in range(90):
-            temp = self.irid.evaluate(np.cos(np.pi/180 * i))
+            temp = self.irid.evaluate(np.cos(np.pi/180 * i), 
+                                      self.var_polarized.get())
             for j in range(NSAMPLESPECTRUM):
                 Z[i][j] = temp.c[j]
         # プロット
