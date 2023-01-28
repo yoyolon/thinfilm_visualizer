@@ -26,21 +26,21 @@ class App(tk.Frame):
     spd : Spectrum
         グラフプロットするSPD(Spectral Power Distribution)
     var_angle : DoubleVar
-        SPDを評価する入射角を指定するバー
+        入射角
     var_thickness : DoubleVar
-        薄膜の膜厚を指定するバー
+        薄膜の膜厚
     var_eta_film : DoubleVar
-        薄膜の屈折率を指定するバー
+        薄膜の屈折率
     var_eta_base : DoubleVar
-        ベース材質の屈折率
-    var_kappa_base : DoubleVar
-        ベース材質の消失係数
+        ベース材質の屈折
     irid : Irid
         薄膜干渉計算クラス
     irid_texture : PhotoImage
         薄膜干渉反射率テクスチャ
     canvas_texture : Canvas
         テクスチャ描画用キャンバス
+    var_polarized : int
+        偏光状態
     fig_2D : Figure
         2Dグラフ描画用のmatplotlibのFigureオブジェクト
     ax_2D : AxesSubplot
@@ -85,38 +85,38 @@ class App(tk.Frame):
         self.var_eta_base = tk.DoubleVar()
         self.var_eta_base.set(1.00)
 
-        # 薄膜干渉計算用クラス
-        film1 = ThinFilm(0, Spectrum(constv=1.0))
-        film2 = ThinFilm(self.var_thickness.get(), Spectrum(constv=self.var_eta_film.get()))
-        film3 = ThinFilm(0, Spectrum(constv=self.var_eta_base.get()))
+        # 薄膜データ
+        film1 = ThinFilm(0, Spectrum(constv=1.0)) # 空気層
+        film2 = ThinFilm(self.var_thickness.get(), 
+                         Spectrum(constv=self.var_eta_film.get())) # 薄膜層
+        film3 = ThinFilm(0, Spectrum(constv=self.var_eta_base.get())) # ベース層
         self.irid = Irid([film1, film2, film3])
         # 画像
         self.irid_texture = None
 
+
+        #GUI
         # メインフレーム
         frm_main = ttk.Frame(master=self.window)
         frm_main.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
-
-
         # 右フレーム
         frm_rgt = ttk.Frame(master=frm_main)
         frm_rgt.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
-
         # 左フレーム
         frm_lft = ttk.Frame(master=frm_main)
         frm_lft.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY, side=tk.LEFT)
-
-        # パラメータ調整フレーム(左)
+        # パラメータフレーム
         frm_param_ajust = ttk.LabelFrame(master=frm_lft, text="Parameter")
         frm_param_ajust.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
-        # テクスチャ描画
+        # テクスチャ描画フレーム
         frm_texture_prev = ttk.Frame(master=frm_param_ajust)
         frm_texture_prev.pack(fill=tk.Y, padx=PADX, pady=PADY)
         self.canvas_texture = tk.Canvas(master=frm_texture_prev, bg="white", height=60)
         self.canvas_texture.pack(fill=tk.BOTH, expand=True)
         canvas_width = self.canvas_texture.winfo_width()
         canvas_height = self.canvas_texture.winfo_height()
+        # テクスチャ
         self.canvas_texture.create_image(canvas_width/2,
                                          canvas_height/2,
                                          image=self.irid_texture
@@ -138,7 +138,6 @@ class App(tk.Frame):
                                              textvariable=self.var_thickness
                                              )
         self.spinbox_thickness.grid(row=0, column=1, sticky="ewns")
-
         # 薄膜屈折率
         frm_eta_film = ttk.Frame(master=frm_param_ajust)
         frm_eta_film.pack(padx=PADX, pady=PADY)
@@ -151,7 +150,6 @@ class App(tk.Frame):
                                             textvariable=self.var_eta_film
                                             )
         self.spinbox_eta_film.grid(row=0, column=1, sticky="ew")
-
         # ベース屈折率
         frm_eta_base = ttk.Frame(master=frm_param_ajust)
         frm_eta_base.pack(padx=PADX, pady=PADY)
@@ -164,7 +162,6 @@ class App(tk.Frame):
                                             textvariable=self.var_eta_base
                                             )
         self.spinbox_eta_base.grid(row=0, column=1, sticky="ew")
-
         # 入射角
         frm_incident = ttk.Frame(master=frm_param_ajust)
         frm_incident.pack(padx=PADX, pady=PADY)
@@ -209,17 +206,10 @@ class App(tk.Frame):
                                           )
         radio_s_polarized.grid(row=0, column=2, padx=PADX, sticky="ew")
 
-
         # セパレータ
         separator3 = ttk.Separator(master=frm_param_ajust)
         separator3.pack(fill=tk.X, padx=PADX, pady=PADY)
 
-        # 保存ボタン
-        btn_load   = ttk.Button(master=frm_param_ajust, 
-                                text="Save Csv", 
-                                command=self.create_csv, 
-                                )
-        btn_load.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
         # 計算ボタン
         btn_update = ttk.Button(master=frm_param_ajust, 
                                 text="Calculate", 
@@ -238,6 +228,12 @@ class App(tk.Frame):
                                 command = self.graph_reset_2D, 
                                 )
         btn_reset.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
+        # 保存ボタン
+        btn_load   = ttk.Button(master=frm_param_ajust, 
+                                text="Save Table", 
+                                command=self.create_csv, 
+                                )
+        btn_load.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         # スイッチ(ONにすると反射率の表示領域が[0,1)になる)
         self.is_graph_ajust = tk.BooleanVar()
@@ -252,8 +248,8 @@ class App(tk.Frame):
         switch_graph_ajust.pack(padx=PADX, pady=PADY)
 
 
-        # グラフ描画(右)
-        frm_graph = ttk.LabelFrame(master=frm_rgt, text="Spectral Reflectance")
+        # グラフ描画
+        frm_graph = ttk.Frame(master=frm_rgt)
         frm_graph.pack(fill=tk.BOTH, expand=True, padx=PADX, pady=PADY)
 
         frm_graph_outer = ttk.Frame(master=frm_graph)
