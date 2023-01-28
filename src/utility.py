@@ -133,6 +133,28 @@ def rgb_to_xyz(rgb):
     return rgb
 
 
+def gamma_correction(rgb):
+    """
+    gamma=2.2に対するガンマ補正を行い8ビットに変換
+
+    Parameters
+    ----------
+    rgb : ndarray
+        RGB値
+
+    Returns
+    -------
+    rgb : ndarray
+        変換後のRGB値
+    """
+    for i in np.len(rgb):
+        if rgb[i] <= 0.0031308:
+            rgb[i] = 12.92 * rgb[i]
+        else:
+            rgb[i] = 1.055 * np.pow(rgb[i], 1/2.4) - 0.055
+    return rgb
+
+
 def to_radian(deg):
     """
     度数法から弧度法に変換
